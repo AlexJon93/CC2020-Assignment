@@ -21,3 +21,7 @@
 .form-card {
   display: inline-block;
 }
+
+input[type="passwordConfirm"] {
+  margin-top: 10px;
+}
