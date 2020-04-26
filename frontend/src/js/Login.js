@@ -1,8 +1,8 @@
-import React from 'react'
 import '../App.css'
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
+import React    from 'react'
+import Form     from 'react-bootstrap/Form';
+import Button   from 'react-bootstrap/Button';
+import Card     from 'react-bootstrap/Card';
 
 
 function Login() {
