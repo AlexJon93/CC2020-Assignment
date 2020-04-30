@@ -1,0 +1,43 @@
+service: grouplite
+app: grouplite-app
+org: alexjonjarvis
+
+provider:
+  name: aws
+  runtime: python3.8
+  role: arn:aws:iam::986870807352:role/lambda-vpc-role
+  vpc:
+    securityGroupIds:
+      - sg-19f02336
+    subnetIds:
+      - subnet-1b556a25
+      - subnet-20fb406d
+      - subnet-37278539
+      - subnet-904cb9cf
+      - subnet-beab5d9f
+      - subnet-cddd35ab
+
+plugins:
+  - serverless-offline
+
+functions:
+  get_user:
+    handler: users/users.get_user
+    events:
+      - httpApi:
+          method: GET
+          path: /user
+
+  signup:
+    handler: users/users.post_user
+    events:
+      - httpApi:
+          method: POST
+          path: /user
+
+  login:
+    handler: authentication/sessions.login
+    events:
+      - httpApi:
+          method: GET
+          path: /login
