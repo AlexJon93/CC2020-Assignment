@@ -1,6 +1,6 @@
 import React from 'react';
 import Post from './Post';
-
+import PostForm from './PostForm';
 function Wall(props) {
     var postComponents = [];
 
@@ -9,11 +9,14 @@ function Wall(props) {
     }
 
     return (
-        <ul class="post-list">
-            {postComponents.map(post =>
-                <li>{post}</li>
-            )}
-        </ul>
+        <div class="wall">
+            <PostForm/>
+            <ul class="post-list">
+                {postComponents.map(post =>
+                    <li>{post}</li>
+                )}
+            </ul>
+        </div>
     )
 }
 

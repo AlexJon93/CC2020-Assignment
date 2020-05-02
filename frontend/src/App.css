@@ -38,8 +38,20 @@ input[type="passwordConfirm"] {
   margin-bottom: 20px;
 }
 
-.post-list {
-  list-style-type: none;
+.wall {
   margin: auto;
   width: 50%;
+}
+
+.post-list{
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.post-text {
+  width: 100%;
+}
+
+.submit-button {
+  float: right;
 }
