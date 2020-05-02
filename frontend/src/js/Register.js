@@ -49,6 +49,8 @@ class ConnectedRegistrationForm extends React.Component {
                                 <Form.Group controlId="formBasicEmail">
                                     <Form.Label>Email address</Form.Label>
                                     <Form.Control id="email" type="email" placeholder="Enter email" onChange={this.handleChange} />
+                                    <Form.Label>Email address confirm</Form.Label>
+                                    <Form.Control id="emailConfirm" type="email" placeholder="Confirm email" onChange={this.handleChange} />
                                     <Form.Text className="text-muted">
                                         We'll never share your email with anyone else.
                                     </Form.Text>
@@ -57,7 +59,7 @@ class ConnectedRegistrationForm extends React.Component {
                                 <Form.Group controlId="formBasicPassword">
                                     <Form.Label>Password</Form.Label>
                                     <Form.Control id="password" type="password" placeholder="Password" onChange={this.handleChange}/>
-                                    <Form.Control id="passwordConfirm" type="passwordConfirm" placeholder="Password (confirm)" onChange={this.handleChange}/>
+                                    <Form.Control id="passwordConfirm" type="password" placeholder="Password (confirm)" onChange={this.handleChange}/>
                                 </Form.Group>
                                 <Button variant="primary" type="submit">
                                     Submit

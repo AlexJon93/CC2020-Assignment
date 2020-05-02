@@ -25,3 +25,21 @@
 input[type="passwordConfirm"] {
   margin-top: 10px;
 }
+
+.rounded-circle {
+  height: 40px;
+  width: 40px;
+  border: 1px solid black;
+  margin-right: 10px;
+}
+
+.post {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.post-list {
+  list-style-type: none;
+  margin: auto;
+  width: 50%;
+}
