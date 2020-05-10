@@ -39,5 +39,5 @@ functions:
     handler: authentication/sessions.login
     events:
       - httpApi:
-          method: GET
+          method: POST
           path: /login
