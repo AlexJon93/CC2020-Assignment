@@ -21,6 +21,7 @@ provider:
     DB_PASS: 'SolidSnake21!'
     DB_USERNAME: 'alexj'
     DB_NAME: 'grouplitedb'
+    TOKEN_SECRET: '0603'
 
 plugins:
   - serverless-offline
@@ -31,8 +32,8 @@ package:
     - venv/**
 
 functions:
-  get_user:
-    handler: users/users.get_user
+  get_users:
+    handler: users/users.get_users
     events:
       - httpApi:
           method: GET

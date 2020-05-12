@@ -1,78 +1,68 @@
 import json
-import boto3
-import logging
-import signal
+import os
+import pymysql
+import jwt
 
-logger = logging.getLogger()
-logger.setLevel('DEBUG')
+from pymysql import MySQLError
 
-from contextlib import contextmanager
-from botocore.exceptions import ClientError
+from misc import connection_error
+from misc import get_hash
+from misc import check_missing
+from misc import format_response
+
+rds_host = os.environ['RDS_HOST']
+name = os.environ['DB_USERNAME']
+password = os.environ['DB_PASS']
+db_name = os.environ['DB_NAME']
+
+# try to connect to mysql db
+try:
+    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
+except pymysql.MySQLError as e:
+    conn = None
+    print(e)
 
 def login(event, context):
-    logger.info('## EVENT')
-    logger.info(event)
+    """ Logs user in if posted details valid """
 
-    # checks post body not empty
-    logger.debug('Checking post request not empty')
-    if event['body'] is None:
-        logger.error('Post request was empty')
-        return { "statusCode": 404, "body": json.dumps({"error":"post request is empty"}) }
-    logger.debug('Post request not empty')
+    # Check that connection to DB is valid
+    if conn is None:
+        return connection_error()
 
-    # check that the request contains all required fields
-    logger.debug('Checking post request contains required paramaters')
+    # Check post request body not empty
+    if event.get('body') is None:
+        return format_response(400, {"error":"post request is empty"})
+
+    # Check request contains all required fields
     request = json.loads(event['body'])
-    missing = {'email', 'password'} - set(request.keys())
-    if not len(missing) == 0:
-        logger.error('Missing some paramaters in the request')
-        missing_params = ['Missing parameter: {}'.format(val) for val in missing]
-        return { "statusCode": 400, "body": json.dumps({"errors": missing_params}) }
-    logger.debug('Post request contains required paramaters')
+    missing_params = check_missing('email', 'password', request=request)
 
-    cognito = boto3.client('cognito-idp')
+    if missing_params is not None:
+        return format_response(400, {"errors": missing_params})
+
+    # Get user from DB
+    user = None
     try:
-        # submit sign in request to AWS
-        logger.debug('Submitting sign in request to AWS')
-        with timeout(1):
-            try:
-                auth_response = cognito.admin_initiate_auth(
-                    AuthFlow='ADMIN_USER_PASSWORD_AUTH',
-                    AuthParameters={
-                        'USERNAME': request.get('email'),
-                        'PASSWORD': request.get('password')
-                    },
-                    ClientId='56pl5bqsphd2j6e2phi8f4ioqi',
-                    UserPoolId='us-east-1_a84YtxjfS'
-                )
-            except TimeoutError as error:
-                logger.error('Cognito request timed out')
-                return { "statusCode": 500, "body": json.dumps({"error": "Timeout"}) }
-        logger.info('## LOGIN RESPONSE')
-        logger.info(auth_response)
-    except ClientError as error:
-        logger.error('There was an issue with the request')
-        return { "statusCode": 400, "body": json.dumps(error.response['Error']) }
-    
-    logger.debug('No issue with cognito login')
+        with conn.cursor() as cur:
+            cur.execute("select * from User where Email=\'{}\'".format(request.get('email')))
+            user = cur.fetchone()
+            conn.commit()
+    except MySQLError as e:
+        print(e)
+        return { "statusCode": 500 }
 
-    # return session token on success
-    logger.debug('Returning request token')
-    return {"body": json.dumps({"session_token": auth_response.get('AuthenticationResult').get('AccessToken')})}
+    # check user was returned
+    if user is None:
+        return format_response(404, {"error":"No such user found"})
 
-@contextmanager
-def timeout(time):
-    signal.signal(signal.SIGALRM, raise_timeout)
-    signal.alarm(time)
-
-    try:
-        yield
-    except TimeoutError:
-        print('function timed out')
-        pass
-    finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
-    
-
-def raise_timeout(signum, frame):
-    raise TimeoutError
+    # check password valid
+    salt = int(user.get('PassSalt')).to_bytes(16, byteorder='big')
+    pass_hash = get_hash(request.get('password'), salt)
+    if pass_hash == user.get('PasswordHash'):
+        payload = {
+            'user_id': user.get('UserID')
+        }
+        token = jwt.encode(payload, os.environ['TOKEN_SECRET'], algorithm='HS256')
+        return format_response(200, {"token": token.decode('utf-8')})
+    else:
+        return format_response(404, {"error":"invalid username/password"})
