@@ -21,23 +21,36 @@ except pymysql.MySQLError as e:
 
 
 def get_users(event, context):
-    """ Returns list of all users in DB """
+    """ Returns either all users in DB or single user in query """
 
     # check that connection to db valid
     if conn is None:
         return connection_error()
 
-    # intialising the body of the reponse, to add returned users
-    body = {
-        "message": "success!",
-        "users": {}
-    }
+    # check if call is for specific id
+    if event.get("queryStringParameters") is not None and event.get("queryStringParameters").get("user_id") is not None:
+        user_id = event.get("queryStringParameters").get("user_id")
+        body = {
+            "message": "success!",
+            "user": {}
+        }
+        # executes query to get user and adds to the response body
+        with conn.cursor() as cur:
+            cur.execute("select UserID, Username, Email from User where UserID={}".format(user_id))
+            user = cur.fetchone()
+            body['user'] = user
+            conn.commit()
 
-    # executes get all query and then iterates through response, adding to the response body
-    with conn.cursor() as cur:
-        cur.execute("select * from User")
-        for row in cur:
-            body["users"][row.get('UserID')] = row
+    else:
+        body = {
+            "message": "success!",
+            "users": {}
+        }
+        # executes get all query and then iterates through response, adding to the response body
+        with conn.cursor() as cur:
+            cur.execute("select UserID, Username, Email from User")
+            for row in cur:
+                body["users"][row.get('UserID')] = row
 
     return format_response(200, body)
 

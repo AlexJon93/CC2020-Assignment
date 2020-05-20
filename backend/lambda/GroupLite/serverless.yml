@@ -6,6 +6,7 @@ provider:
   name: aws
   runtime: python3.8
   role: arn:aws:iam::986870807352:role/lambda-vpc-role
+
   vpc:
     securityGroupIds:
       - sg-19f02336
@@ -16,6 +17,7 @@ provider:
       - subnet-904cb9cf
       - subnet-beab5d9f
       - subnet-cddd35ab
+
   environment:
     RDS_HOST: 'grouplite-db.clidohi5pcdd.us-east-1.rds.amazonaws.com'
     DB_PASS: 'SolidSnake21!'
@@ -32,23 +34,42 @@ package:
     - venv/**
 
 functions:
+  auth:
+    handler: authentication/sessions.auth
+
   get_users:
     handler: users/users.get_users
     events:
-      - httpApi:
+      - http:
           method: GET
           path: /user
+          cors: true
+          authorizer: auth
+
+  get_user:
+    handler: users/users.get_user
+    events:
+      - http:
+          method: GET
+          path: /user/{user_id}
+          cors: true
+          parameters:
+            paths:
+              user_id: true
+          # authorizer: auth
 
   signup:
     handler: users/users.post_user
     events:
-      - httpApi:
+      - http:
           method: POST
           path: /user
+          cors: true
 
   login:
     handler: authentication/sessions.login
     events:
-      - httpApi:
+      - http:
           method: POST
           path: /login
+          cors: true

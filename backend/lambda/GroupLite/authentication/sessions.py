@@ -3,12 +3,9 @@ import os
 import pymysql
 import jwt
 
+from datetime import datetime, timedelta
 from pymysql import MySQLError
-
-from misc import connection_error
-from misc import get_hash
-from misc import check_missing
-from misc import format_response
+from misc import *
 
 rds_host = os.environ['RDS_HOST']
 name = os.environ['DB_USERNAME']
@@ -60,9 +57,46 @@ def login(event, context):
     pass_hash = get_hash(request.get('password'), salt)
     if pass_hash == user.get('PasswordHash'):
         payload = {
-            'user_id': user.get('UserID')
+            'user_id': user.get('UserID'),
+            'exp': datetime.utcnow() + timedelta(hours=3)
         }
         token = jwt.encode(payload, os.environ['TOKEN_SECRET'], algorithm='HS256')
         return format_response(200, {"token": token.decode('utf-8')})
     else:
         return format_response(404, {"error":"invalid username/password"})
+
+
+def auth(event, context):
+    """ Used to protect api endpoints """
+
+    # get token from authorization header
+    token = event.get('authorizationToken')
+
+    # decode token and check validity
+    try:
+        decoded = jwt.decode(token, os.environ['TOKEN_SECRET'], algorithms='HS256')
+        if decoded.get('user_id') is not None:
+            return get_policy('Allow', event.get('methodArn'))
+    except (jwt.DecodeError, jwt.ExpiredSignatureError) as e:
+        print(e)
+        return get_policy('Unauthorised', event.get('methodArn'), {"error": "invalid token"})
+
+    return get_policy('Deny', event.get('methodArn'))
+
+def get_policy(effect, resource, context={}):
+    ''' Generates authorization response '''
+
+    return { 
+        "principalId": "user",
+        "policyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Action":"execute-api:Invoke",
+                    "Effect": effect,
+                    "Resource": resource
+                }
+            ]
+        },
+        "context" : context
+     }
