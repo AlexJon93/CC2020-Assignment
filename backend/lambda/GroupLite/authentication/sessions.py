@@ -4,7 +4,6 @@ import pymysql
 import jwt
 
 from datetime import datetime, timedelta
-from pymysql import MySQLError
 from misc import *
 
 rds_host = os.environ['RDS_HOST']
@@ -41,16 +40,16 @@ def login(event, context):
     user = None
     try:
         with conn.cursor() as cur:
-            cur.execute("select * from User where Email=\'{}\'".format(request.get('email')))
+            cur.execute("select UserID, PassSalt, PasswordHash from User where Email=\'{}\'".format(request.get('email')))
             user = cur.fetchone()
             conn.commit()
-    except MySQLError as e:
+    except pymysql.MySQLError as e:
         print(e)
         return { "statusCode": 500 }
 
     # check user was returned
     if user is None:
-        return format_response(404, {"error":"No such user found"})
+        return format_response(404, {"error":"invalid username/password"})
 
     # check password valid
     salt = int(user.get('PassSalt')).to_bytes(16, byteorder='big')

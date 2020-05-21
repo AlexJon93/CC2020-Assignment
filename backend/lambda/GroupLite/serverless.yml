@@ -46,17 +46,23 @@ functions:
           cors: true
           authorizer: auth
 
-  get_user:
-    handler: users/users.get_user
+  create_group:
+    handler: group/group.create_group
+    events:
+      - http:
+          method: POST
+          path: /group
+          cors: true
+          authorizer: auth
+
+  get_group:
+    handler: group/group.get_group
     events:
       - http:
           method: GET
-          path: /user/{user_id}
+          path: /group
           cors: true
-          parameters:
-            paths:
-              user_id: true
-          # authorizer: auth
+          authorizer: auth
 
   signup:
     handler: users/users.post_user

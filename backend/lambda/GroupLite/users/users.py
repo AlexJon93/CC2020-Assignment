@@ -2,10 +2,7 @@ import json
 import os
 import pymysql
 
-from misc import connection_error
-from misc import get_hash
-from misc import check_missing
-from misc import format_response
+from misc import *
 
 rds_host = os.environ['RDS_HOST']
 name = os.environ['DB_USERNAME']
@@ -29,28 +26,20 @@ def get_users(event, context):
 
     # check if call is for specific id
     if event.get("queryStringParameters") is not None and event.get("queryStringParameters").get("user_id") is not None:
-        user_id = event.get("queryStringParameters").get("user_id")
-        body = {
-            "message": "success!",
-            "user": {}
-        }
+        user_id = event["queryStringParameters"]["user_id"]
         # executes query to get user and adds to the response body
         with conn.cursor() as cur:
             cur.execute("select UserID, Username, Email from User where UserID={}".format(user_id))
-            user = cur.fetchone()
-            body['user'] = user
+            body = cur.fetchone()
             conn.commit()
 
     else:
-        body = {
-            "message": "success!",
-            "users": {}
-        }
+        body = { "users": [] }
         # executes get all query and then iterates through response, adding to the response body
         with conn.cursor() as cur:
             cur.execute("select UserID, Username, Email from User")
             for row in cur:
-                body["users"][row.get('UserID')] = row
+                body["users"].append(row)
 
     return format_response(200, body)
 
