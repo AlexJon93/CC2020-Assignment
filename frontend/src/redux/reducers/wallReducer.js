@@ -1,15 +1,16 @@
 import { SET_GROUP_NAME, CLEAR_WALL, ADD_POST, ADD_POSTER_NAME, SET_LOADING, SET_GROUP_ID} from '../action-types'
 
+// Post object structure
+// {
+//     PostID: null,
+//     PostContent: null,
+//     PostUser: null,
+//     PostGroup: null,
+//     CreatedAt: null,
+// }
+
 const initialState = {
-    posts: [
-        {
-            PostID: null,
-            PostContent: null,
-            PostUser: null,
-            PostGroup: null,
-            CreatedAt: null,
-        }
-    ],
+    posts: [],
     postUserNames: {},
     loading: true,
     group_id: null,
@@ -29,9 +30,7 @@ const wallReducer = (state=initialState, action) => {
             };
         
         case ADD_POSTER_NAME:
-            const exists = Object.keys(state.postUserNames).some(PostUser => {
-                PostUser === action.PostUser
-            });
+            const exists = Object.keys(state.postUserNames).some(PostUser => PostUser === action.PostUser);
 
             if (exists) {
                 return state;

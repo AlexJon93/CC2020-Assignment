@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import {Col, Row, Container} from 'react-bootstrap';
 import {sendRequest} from '../helpers';
 
-//{PostID, PostContent, PostUser, CreatedAt}
 
 class Post extends React.Component {
     constructor(props) {
@@ -13,30 +12,6 @@ class Post extends React.Component {
         this.state = {
             name: null
         };
-
-        this.request = new XMLHttpRequest();
-        this.request.onreadystatechange = this.responseHandler;
-    }
-
-    componentDidMount() {
-        this.fetchName();
-    }
-
-    fetchName = () => {
-        const params = {user_id: this.props.PostUser};
-        sendRequest(this.request, "GET", "/user", params);
-    }
-
-    responseHandler = () => {
-        if (this.request.readyState === XMLHttpRequest.DONE) {
-            
-            if (this.request.status !== 200) {
-                this.setState({invalidSession: true});
-                return;
-            }
-            const userJSON = JSON.parse(this.request.responseText);
-            this.setState({name: userJSON.Username});
-        }
     }
 
     render() {
@@ -47,7 +22,7 @@ class Post extends React.Component {
                         <Container>
                             <Row>
                                 <Col style={{ textAlign: "left" }}>
-                                    {this.state.name ? this.state.name : <>User ID {this.props.PostUser}</>}
+                                    {this.props.UserName}
                                 </Col>
                                 <Col style={{ textAlign: "right" }}>
                                     {this.props.CreatedAt}

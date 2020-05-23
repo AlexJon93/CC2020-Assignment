@@ -7,10 +7,6 @@ const initialState = {
         Username: null,
         Email: null,
         groups: []
-    },
-    wall: {
-        posts: [],
-        loading: true,
     }
 };
 

@@ -1,47 +1,36 @@
 import React from 'react';
 import WallView from './WallView';
-import { formatParams, sendRequest, clearSession} from '../helpers';
+import {clearSession} from '../helpers';
+import WallFetcher from './WallFetcher';
+import {connect} from 'react-redux';
+import {Redirect} from 'react-router-dom';
+import {clearWall} from '../redux/actions';
 
-class WallPage extends React.Component {
+const mapStateToProp = state => {
+    return {loading: state.wall.loading};
+}
+const mapDispatchToProps = dispatch => {
+    return {clearWall: () => dispatch(clearWall())}
+}
+class ConnectedWallPage extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             invalidSession: false,
-            posts: [] 
         };
-
-        this.fetchPostsRequest = new XMLHttpRequest();
-        this.fetchPostsRequest.onreadystatechange = this.fetchPostsResponseHandler;
     }
 
     componentDidMount() {
-        this.fetchPosts();
-    }
-
-    fetchPosts = () => {
-        const params = {group_id: this.props.match.params.GroupID}
-        sendRequest(this.fetchPostsRequest, "GET", "/group/posts", params);
-    }
-
-    fetchPostsResponseHandler = () => {
-        if (this.fetchPostsRequest.readyState === XMLHttpRequest.DONE) {
-
-            console.log(this.fetchPostsRequest.response);
-
-            if (this.fetchPostsRequest.status !== 200) {
-                this.setState({invalidSession: true});
-                return;
-            }
-            const postsJSON = JSON.parse(this.fetchPostsRequest.responseText);
-            this.setState({posts: postsJSON.posts}) 
-        }
+        var dataFetcher = new WallFetcher(this.props.match.params.GroupID);
+        dataFetcher.fetch();
     }
 
     componentWillUnmount() {
         if (this.state.invalidSession) {
             clearSession();
         }
+        this.props.clearWall()
     }
 
     render() {
@@ -49,10 +38,14 @@ class WallPage extends React.Component {
             return <Redirect to="/login"/>
         } 
 
+        if (this.props.loading) {
+            return <h1>Loading data</h1>
+        } 
         return (
-            <WallView posts={this.state.posts} GroupID={this.props.match.params.GroupID}/> 
+            <WallView /> 
         );
     }
 }
 
+const WallPage = connect(mapStateToProp)(ConnectedWallPage);
 export default WallPage;
