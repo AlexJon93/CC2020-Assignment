@@ -40,7 +40,7 @@ def login(event, context):
     user = None
     try:
         with conn.cursor() as cur:
-            cur.execute("select UserID, PassSalt, PasswordHash from User where Email=\'{}\'".format(request.get('email')))
+            cur.execute("select MemberID, PassSalt, PasswordHash from Member where Email=\'{}\'".format(request.get('email')))
             user = cur.fetchone()
             conn.commit()
     except pymysql.MySQLError as e:
@@ -56,7 +56,7 @@ def login(event, context):
     pass_hash = get_hash(request.get('password'), salt)
     if pass_hash == user.get('PasswordHash'):
         payload = {
-            'user_id': user.get('UserID'),
+            'user_id': user.get('MemberID'),
             'exp': datetime.utcnow() + timedelta(hours=3)
         }
         token = jwt.encode(payload, os.environ['TOKEN_SECRET'], algorithm='HS256')
@@ -75,14 +75,14 @@ def auth(event, context):
     try:
         decoded = jwt.decode(token, os.environ['TOKEN_SECRET'], algorithms='HS256')
         if decoded.get('user_id') is not None:
-            return get_policy('Allow', event.get('methodArn'))
+            return get_policy('Allow')
     except (jwt.DecodeError, jwt.ExpiredSignatureError) as e:
         print(e)
-        return get_policy('Unauthorised', event.get('methodArn'), {"error": "invalid token"})
+        return get_policy('Unauthorised', {"error": "invalid token"})
 
-    return get_policy('Deny', event.get('methodArn'))
+    return get_policy('Deny')
 
-def get_policy(effect, resource, context={}):
+def get_policy(effect, context={}):
     ''' Generates authorization response '''
 
     return { 
@@ -93,7 +93,7 @@ def get_policy(effect, resource, context={}):
                 {
                     "Action":"execute-api:Invoke",
                     "Effect": effect,
-                    "Resource": resource
+                    "Resource": '*'
                 }
             ]
         },

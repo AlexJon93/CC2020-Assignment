@@ -28,17 +28,22 @@ def create_group(event, context):
         return format_response(404, {"error":"post request is empty"})
     request = json.loads(event['body'])
 
-    if request.get('GroupName') is None:
+    # check that request has required value
+    if request.get('group_name') is None:
         return format_response(400, {"errors": ["Missing parameter: GroupName"] })
 
+    # create table if does not exist and add new group
     try:
         with conn.cursor() as cur:
-            cur.execute("create table if not exists UserGroup ( GroupID int auto_increment NOT NULL, GroupName varchar(255) NOT NULL, PRIMARY KEY (GroupID) )")
-            cur.execute("insert into UserGroup (GroupName) values (\'{}\')".format(request.get('GroupName')))
+            cur.execute("create table if not exists MemberGroup ( GroupID int auto_increment NOT NULL, GroupName varchar(255) NOT NULL UNIQUE, PRIMARY KEY (GroupID) )")
+            cur.execute("insert into MemberGroup (GroupName) values (\'{}\')".format(request.get('group_name')))
             conn.commit()
     except pymysql.MySQLError as e:
         print(e)
         return { "statusCode": 500 }
+    except pymysql.IntegrityError as e:
+        print(e)
+        return format_response(400, {'error': str(e)})
 
     # returns success statuscode if created
     return { "statusCode": 200 }
@@ -53,16 +58,17 @@ def get_group(event, context):
     # check call is for specific id
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
         group_id = event['queryStringParameters']['group_id']
-        body = { "group": {} }
+        body = { }
         with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from UserGroup where GroupID={}".format(group_id))
-            body['group'] = curr.fetchone()
+            curr.execute("select GroupID, GroupName from MemberGroup where GroupID={}".format(group_id))
+            body = curr.fetchone()
             conn.commit()
     
+    # returns full list of groups if not for specific group
     else:
         body = { "groups": [] }
         with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from UserGroup")
+            curr.execute("select GroupID, GroupName from MemberGroup")
             for row in curr:
                 body['groups'].append(row)
 

@@ -64,6 +64,24 @@ functions:
           cors: true
           authorizer: auth
 
+  get_group_membership:
+    handler: group/membership.get_group_members
+    events:
+      - http:
+          method: GET
+          path: /group/members
+          cors: true
+          authorizer: auth
+
+  add_membership:
+    handler: group/membership.add_membership
+    events:
+      - http:
+          method: POST
+          path: /group/members
+          cors: true
+          authorizer: auth
+
   signup:
     handler: users/users.post_user
     events:

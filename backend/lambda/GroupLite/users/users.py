@@ -29,7 +29,7 @@ def get_users(event, context):
         user_id = event["queryStringParameters"]["user_id"]
         # executes query to get user and adds to the response body
         with conn.cursor() as cur:
-            cur.execute("select UserID, Username, Email from User where UserID={}".format(user_id))
+            cur.execute("select MemberID, Username, Email from Member where MemberID={}".format(user_id))
             body = cur.fetchone()
             conn.commit()
 
@@ -37,7 +37,7 @@ def get_users(event, context):
         body = { "users": [] }
         # executes get all query and then iterates through response, adding to the response body
         with conn.cursor() as cur:
-            cur.execute("select UserID, Username, Email from User")
+            cur.execute("select MemberID, Username, Email from Member")
             for row in cur:
                 body["users"].append(row)
 
@@ -69,12 +69,16 @@ def post_user(event, context):
     db_salt = int.from_bytes(salt, byteorder='big')
 
     # create user in database
-    with conn.cursor() as cur:
-        cur.execute("create table if not exists User ( UserID int auto_increment NOT NULL, PasswordHash varchar(255) NOT NULL, "+
-                    " PassSalt varchar(255) NOT NULL, Username varchar(255) NOT NULL, Email varchar(255) NOT NULL, PRIMARY KEY (UserID))")
-        cur.execute("insert into User (Username, Email, PasswordHash, PassSalt)"+
-                    " values (\'{}\', \'{}\', \'{}\', \'{}\')".format(request.get('username'), request.get('email'), pass_hash, db_salt))
-        conn.commit()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("create table if not exists Member ( MemberID int auto_increment NOT NULL, PasswordHash varchar(255) NOT NULL, "+
+                        " PassSalt varchar(255) NOT NULL, Username varchar(255) NOT NULL, Email varchar(255) NOT NULL UNIQUE, PRIMARY KEY (MemberID))")
+            cur.execute("insert into Member (Username, Email, PasswordHash, PassSalt)"+
+                        " values (\'{}\', \'{}\', \'{}\', \'{}\')".format(request.get('username'), request.get('email'), pass_hash, db_salt))
+            conn.commit()
+    except pymysql.IntegrityError as e:
+        print(e)
+        return format_response(400, {'error': repr(e)})
 
     # returns success statuscode if created
     return { "statusCode": 200 }
