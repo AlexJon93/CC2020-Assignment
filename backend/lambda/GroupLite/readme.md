@@ -183,3 +183,24 @@ Creates Membership relation between given user and group
 * Success Response
     * Status Code: 200
     * No JSON Response
+
+***Get Users' Groups***
+
+Returns JSON Data of all groups a given user is a member of
+* URL: /user/groups?user_id={id}
+* Method: GET
+* URL Parameter: {id} - integer value
+* Success Response
+    ```json
+    {
+        "user id": "1",
+        "groups": [
+            {
+                "GroupID": 1
+            },
+            {
+                "GroupID": 5
+            }
+        ]
+    }
+    ```

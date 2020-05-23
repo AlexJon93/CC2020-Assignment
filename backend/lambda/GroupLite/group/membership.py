@@ -23,22 +23,46 @@ def get_group_members(event, context):
     if conn is None:
         return connection_error()
     
-    # confirm user_id is passed via query
+    # confirm group_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
-        user_id = event["queryStringParameters"]["group_id"]
-        body = { 'group id': user_id, 'members': [] }
+        group_id = event["queryStringParameters"]["group_id"]
+        body = { 'group id': group_id, 'members': [] }
         try:
             with conn.cursor() as curr:
-                curr.execute('select MemberID from Membership where GroupID = \'{}\''.format(user_id))
+                curr.execute('select MemberID from Membership where GroupID = \'{}\''.format(group_id))
                 for row in curr:
                     body['members'].append(row)
                 conn.commit()
                 return format_response(200, body) 
         except pymysql.MySQLError as e:
             print(e)
-            return { 'statusCode': 500 }
+            return format_response(500)
     else:
-        return { 'statusCode': 400 }
+        return format_response(400)
+
+def get_user_groups(event, context):
+    """ Returns list of all groups a member of """
+
+    # check connection to DB valid
+    if conn is None:
+        return connection_error()
+
+    # confirm user_id is passed via query
+    if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('user_id') is not None:
+        user_id = event["queryStringParameters"]["user_id"]
+        body = { 'user id': user_id, 'groups': [] }
+        try:
+            with conn.cursor() as curr:
+                curr.execute('select GroupID from Membership where MemberID = \'{}\''.format(user_id))
+                for row in curr:
+                    body['groups'].append(row)
+                conn.commit()
+                return format_response(200, body) 
+        except pymysql.MySQLError as e:
+            print(e)
+            return format_response(500)
+    else:
+        return format_response(400)
 
 def add_membership(event, context):
     """ Adds given user to a given group based on ids in post request """
@@ -70,4 +94,4 @@ def add_membership(event, context):
         print(e)
         return format_response(400, {"error": repr(e)})
 
-    return { 'statusCode': 200 }
+    return format_response(200)
