@@ -54,22 +54,31 @@ def get_group(event, context):
     # checks that connection to DB is valid
     if conn is None:
         return connection_error()
+    
+    # returns full list of groups if not for specific group
+    if event.get('queryStringParameters') is None:
+        body = { "groups": [] }
+        with conn.cursor() as curr:
+            curr.execute("select GroupID, GroupName from MemberGroup")
+            for row in curr:
+                body['groups'].append(row)
 
-    # check call is for specific id
-    if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
+    # check call is for specific group via id
+    elif event.get('queryStringParameters').get('group_id') is not None:
         group_id = event['queryStringParameters']['group_id']
         body = { }
         with conn.cursor() as curr:
             curr.execute("select GroupID, GroupName from MemberGroup where GroupID={}".format(group_id))
             body = curr.fetchone()
             conn.commit()
-    
-    # returns full list of groups if not for specific group
-    else:
-        body = { "groups": [] }
+
+    # check call is for specific group via name
+    elif event.get('queryStringParameters').get('group_name') is not None:
+        group_name = event['queryStringParameters']['group_name']
+        body = { }
         with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from MemberGroup")
-            for row in curr:
-                body['groups'].append(row)
+            curr.execute("select GroupID, GroupName from MemberGroup where GroupName=\'{}\'".format(group_name))
+            body = curr.fetchone()
+            conn.commit()
 
     return format_response(200, body)

@@ -30,8 +30,12 @@ def login(event, context):
         return format_response(400, {"error":"post request is empty"})
 
     # Check request contains all required fields
-    request = json.loads(event['body'])
-    missing_params = check_missing('email', 'password', request=request)
+    try:
+        request = json.loads(event['body'])
+        missing_params = check_missing('email', 'password', request=request)
+    except:
+        print(event['body'])
+        return format_response(500)
 
     if missing_params is not None:
         return format_response(400, {"errors": missing_params})
@@ -45,7 +49,7 @@ def login(event, context):
             conn.commit()
     except pymysql.MySQLError as e:
         print(e)
-        return { "statusCode": 500 }
+        return format_response(500)
 
     # check user was returned
     if user is None:

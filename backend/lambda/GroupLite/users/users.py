@@ -97,4 +97,4 @@ def post_user(event, context):
         return format_response(400, {'error': repr(e)})
 
     # returns success statuscode if created
-    return { "statusCode": 200 }
+    return format_response(200)

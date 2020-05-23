@@ -102,8 +102,11 @@ Returns JSON data about either a single group or all groups
 * URL: 
     * /group - returns all groups
     * /group?group_id={id} - returns group from given id
+    * /group?group_name={name} - returns group from given group name
 * Method: GET
-* URL Parameter: {id} = integer value
+* URL Parameter: 
+    * {id} = integer value
+    * {name} = string value
 * Success Response
     *   Single Group:
         ```json 
