@@ -70,8 +70,9 @@ def get_users_posts(event, context):
         body = { 'user id': user_id, 'posts': [] }
         try:
             with conn.cursor() as curr:
-                curr.execute('select PostID, PostContent, PostUser, PostGroup from Post where PostUser = {}'.format(user_id))
+                curr.execute('select PostID, PostContent, PostUser, PostGroup, CreatedAt from Post where PostUser = {}'.format(user_id))
                 for row in curr:
+                    row['CreatedAt'] = str(row['CreatedAt'])
                     body['posts'].append(row)
                 conn.commit()
                 return format_response(200, body) 
@@ -94,8 +95,10 @@ def get_post(event, context):
         body = { }
         try:
             with conn.cursor() as curr:
-                curr.execute('select PostID, PostContent, PostUser, PostGroup from Post where PostID = {}'.format(post_id))
-                body = curr.fetchone()
+                curr.execute('select PostID, PostContent, PostUser, PostGroup, CreatedAt from Post where PostID = {}'.format(post_id))
+                post = curr.fetchone()
+                post['CreatedAt'] = str(post['CreatedAt'])
+                body = post
                 conn.commit()
                 return format_response(200, body) 
         except pymysql.MySQLError as e:
@@ -117,8 +120,9 @@ def get_group_posts(event, context):
         body = { 'group id': group_id, 'posts': [] }
         try:
             with conn.cursor() as curr:
-                curr.execute('select PostID, PostContent, PostUser, PostGroup from Post where PostGroup = {}'.format(group_id))
+                curr.execute('select PostID, PostContent, PostUser, PostGroup, CreatedAt from Post where PostGroup = {}'.format(group_id))
                 for row in curr:
+                    row['CreatedAt'] = str(row['CreatedAt'])
                     body['posts'].append(row)
                 conn.commit()
                 return format_response(200, body) 

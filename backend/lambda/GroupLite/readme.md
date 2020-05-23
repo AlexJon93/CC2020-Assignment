@@ -240,13 +240,15 @@ Returns JSON Data of all posts from a given user
                 "PostID": 1,
                 "PostContent": "This is a test post",
                 "PostUser": 1,
-                "PostGroup": 1
+                "PostGroup": 1,
+                "CreatedAt": "2020-05-23 20:46:46"
             },
             {
                 "PostID": 2,
                 "PostContent": "This is another post",
                 "PostUser": 1,
-                "PostGroup": 5
+                "PostGroup": 5,
+                "CreatedAt": "2020-05-23 20:46:46"
             }
         ]
     }
@@ -264,7 +266,8 @@ Returns JSON Data of a post from a given post id
         "PostID": 1,
         "PostContent": "This is a test post",
         "PostUser": 1,
-        "PostGroup": 1
+        "PostGroup": 1,
+        "CreatedAt": "2020-05-23 20:46:46"
     }
     ```
 
@@ -283,13 +286,15 @@ Returns JSON Data of all posts from in a given group
                 "PostID": 1,
                 "PostContent": "This is a test post",
                 "PostUser": 1,
-                "PostGroup": 1
+                "PostGroup": 1,
+                "CreatedAt": "2020-05-23 20:46:46"
             },
             {
                 "PostID": 2,
                 "PostContent": "This is another post",
                 "PostUser": 2,
-                "PostGroup": 1
+                "PostGroup": 1,
+                "CreatedAt": "2020-05-23 20:46:46"
             }
         ]
     }
