@@ -1,24 +1,54 @@
 import React from 'react';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import {sendRequest} from '../helpers';
+import PostFormView from './PostFormView';
+import docCookies from 'doc-cookies';
 
-function PostForm(props) {
-    return (
-        <Form className="form-post">
-            <Card className="post-form post">
-                <Card.Body>
-                    <Card.Title>
-                        Write a new post
-                    </Card.Title>
-                    <textarea class="post-text"/>
-                    <Button variant="primary" type="submit" className="submit-button">
-                        Submit
-                    </Button>
-                </Card.Body>
-            </Card>
-        </Form>
-    );
+class PostForm extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            post_content: null,
+            refresh: false,
+            partOfGroup: false
+        };
+
+        this.request = new XMLHttpRequest();
+        this.request.onreadystatechange = this.responseHandler;
+    }
+
+    changeHandler = (event) => {
+        this.setState({[event.target.id]: event.target.value})
+    }
+
+    onSubmit = (event) => {
+        event.preventDefault();
+        this.sendPost();
+    }
+
+    sendPost = () => {
+        const params = {
+            post_content: this.state.post_content,
+            post_user: docCookies.getItem('id'),
+            post_group: this.props.GroupID
+        };
+        console.log(params);
+        sendRequest(this.request, "POST", "/group/posts", params);
+    }
+
+    responseHandler = () => {
+        if (this.request.readyState === XMLHttpRequest.DONE) {
+
+            if (this.request.status !== 200) {
+                this.setState({invalidSession: true});
+                return true;
+            }
+            window.location.reload();
+        }
+    }
+
+    render() {
+        return <PostFormView onSubmit={this.onSubmit} onChange={this.changeHandler}/>
+    }
 }
-
 export default PostForm;

@@ -59,6 +59,8 @@ class ConnectedProfile extends React.Component {
             }
             const userJSON = JSON.parse(this.userRequest.responseText);
             this.props.setUser(userJSON);
+            console.log(userJSON);
+            docCookies.setItem('id', userJSON.MemberID);
         }
     }
 

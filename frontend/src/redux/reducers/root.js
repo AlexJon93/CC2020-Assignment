@@ -8,13 +8,10 @@ const initialState = {
         Email: null,
         groups: []
     },
-    wall: [
-        {
-            postid: "",
-            content: "",
-            title: ""
-        }
-    ]
+    wall: {
+        posts: [],
+        loading: true,
+    }
 };
 
 const rootReducer = (state=initialState, action) => {

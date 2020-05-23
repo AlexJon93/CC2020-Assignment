@@ -1,9 +1,6 @@
 import React from 'react';
-import Wall from './WallView';
-import docCookies from 'doc-cookies';
-import { TOKEN } from '../constants/cookies';
-import { URL } from '../constants/API';
-import { formatParams } from '../helpers';
+import WallView from './WallView';
+import { formatParams, sendRequest, clearSession} from '../helpers';
 
 class WallPage extends React.Component {
     constructor(props) {
@@ -24,16 +21,14 @@ class WallPage extends React.Component {
 
     fetchPosts = () => {
         const params = {group_id: this.props.match.params.GroupID}
-        const token = docCookies.getItem(TOKEN);
-
-        this.fetchPostsRequest.open("GET", URL + "/group/posts" + formatParams(params));
-        this.fetchPostsRequest.setRequestHeader("Authorization", token);
-        this.fetchPostsRequest.send();
+        sendRequest(this.fetchPostsRequest, "GET", "/group/posts", params);
     }
 
     fetchPostsResponseHandler = () => {
         if (this.fetchPostsRequest.readyState === XMLHttpRequest.DONE) {
+
             console.log(this.fetchPostsRequest.response);
+
             if (this.fetchPostsRequest.status !== 200) {
                 this.setState({invalidSession: true});
                 return;
@@ -43,10 +38,19 @@ class WallPage extends React.Component {
         }
     }
 
+    componentWillUnmount() {
+        if (this.state.invalidSession) {
+            clearSession();
+        }
+    }
+
     render() {
-        
+        if (this.state.invalidSession) {
+            return <Redirect to="/login"/>
+        } 
+
         return (
-            <Wall posts={this.state.posts}/> 
+            <WallView posts={this.state.posts} GroupID={this.props.match.params.GroupID}/> 
         );
     }
 }
