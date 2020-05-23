@@ -6,8 +6,7 @@ def connection_error():
     """ Returns a json response if connection issue with DB """
 
     body = { "message": "issue connecting to db" }
-    response = { "statusCode": 404, "body": json.dumps(body) }
-    return response
+    return format_response(404, body)
 
 def get_hash(val, salt):
     """ Generates hash string from given value and salt """
@@ -24,12 +23,13 @@ def check_missing(*req_vals, request):
     else:
         return None
 
-def format_response(status, body):
+def format_response(status, body = {}):
     """ Returns a formatted JSON response """
     return {
         "statusCode": status,
         "headers": {
-            "content-type": "application/json"
+            "content-type": "application/json",
+            "Access-Control-Allow-Origin": '*'
         },
         "body": json.dumps(body)
     }

@@ -40,13 +40,13 @@ def create_group(event, context):
             conn.commit()
     except pymysql.MySQLError as e:
         print(e)
-        return { "statusCode": 500 }
+        return format_response(500)
     except pymysql.IntegrityError as e:
         print(e)
         return format_response(400, {'error': str(e)})
 
     # returns success statuscode if created
-    return { "statusCode": 200 }
+    return format_response(200)
 
 def get_group(event, context):
     """ Returns either all groups in DB or group related to given id """

@@ -44,8 +44,11 @@ Returns JSON data about either a single user or all users
 * URL: 
     * /user - returns all users
     * /user?user_id={id} - returns user from given id
+    * /user?user_email={email} - returns user from given email
 * Method: GET
-* URL Param: {id} = integer value
+* URL Param: 
+    * {id} = integer value
+    * {email} = string value
 * Success Response:
     * single user:
         ```json 
