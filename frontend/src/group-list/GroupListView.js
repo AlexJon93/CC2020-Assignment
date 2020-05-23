@@ -9,8 +9,8 @@ const GroupListView = ({groups}) => {
        <Table>
            <thead>
                <tr>
-                   <th>ID</th>
                    <th>Group Name</th>
+                   <th>Members</th>
                </tr>
            </thead>
            <tbody>

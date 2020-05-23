@@ -55,3 +55,9 @@ input[type="passwordConfirm"] {
   margin-top: auto;
   margin-bottom: auto;
 }
+
+.page-card {
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+}

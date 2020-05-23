@@ -2,41 +2,58 @@ import React from 'react';
 import { URL } from '../constants/API';
 import GroupListView from './GroupListView';
 import { connect } from 'react-redux';
-
-const mapStateToProps = state => {
-    return {
-        token: state.user.token
-    };
-};
+import docCookies from 'doc-cookies';
+import {clearSession} from '../helpers';
+import {Redirect} from 'react-router-dom';
 
 class ConnectedGroupList extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            groups: []
+            groups: [],
+            invalidSession: false
         };
-
+        console.log(this.props.match);
         this.request = new XMLHttpRequest();
         this.request.onreadystatechange = this.responseHandler;
+    }
 
+    componentDidMount() {
         this.request.open("GET", URL + "/group");
-        this.request.setRequestHeader("Authorization", this.props.token);
+        const token = docCookies.getItem('token');
+        console.log(token);
+        this.request.setRequestHeader("Authorization", token);
         this.request.send();
     }
 
     responseHandler = () => {
         if (this.request.readyState === XMLHttpRequest.DONE) {
-            console.log(this.request.response);
-            const groupsJSON = JSON.parse(this.request.responseText);
-            this.setState({...groupsJSON});
+
+            if (this.request.status === 200) {
+                const groupsJSON = JSON.parse(this.request.responseText);
+                this.setState({groups: groupsJSON.groups});
+            }
+            else {
+                this.setState({invalidSession: true});
+            }
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.state.invalidSession) {
+            clearSession();
         }
     }
 
     render() {
+        if (this.state.invalidSession) {
+            return <Redirect to="Login" />
+        }
+        console.log(this.state);
         return <GroupListView groups={this.state.groups}/>
+        
     }
 }
 
-const GroupList = connect(mapStateToProps)(ConnectedGroupList);
-export default GroupList;
+export default ConnectedGroupList;
