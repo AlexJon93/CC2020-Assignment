@@ -9,10 +9,6 @@
   margin: auto;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
 .form-card {
   width: 18rem;
   margin-top: 30%;
@@ -24,13 +20,6 @@
 
 input[type="passwordConfirm"] {
   margin-top: 10px;
-}
-
-.rounded-circle {
-  height: 40px;
-  width: 40px;
-  border: 1px solid black;
-  margin-right: 10px;
 }
 
 .post {
@@ -54,4 +43,15 @@ input[type="passwordConfirm"] {
 
 .submit-button {
   float: right;
+}
+
+.category-card {
+  text-align: center;
+  margin-bottom: 30px;
+  height: 200px;
+}
+
+.category-text {
+  margin-top: auto;
+  margin-bottom: auto;
 }

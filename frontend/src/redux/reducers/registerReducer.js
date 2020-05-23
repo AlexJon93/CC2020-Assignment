@@ -1,4 +1,4 @@
-import { POST_REGISTRATION }    from '../constants/action-types';
+import { POST_REGISTRATION }    from '../../constants/action-types';
 
 const initialState = {
     registerDetails: {

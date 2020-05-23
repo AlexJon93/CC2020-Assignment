@@ -1,6 +1,6 @@
 import React from 'react';
-import Post from './Post';
-import PostForm from './PostForm';
+import Post from '../Post';
+import PostForm from '../PostForm';
 function Wall(props) {
     var postComponents = [];
 
