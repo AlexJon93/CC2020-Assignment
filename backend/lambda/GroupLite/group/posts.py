@@ -80,3 +80,50 @@ def get_users_posts(event, context):
             return format_response(500)
     else:
         return format_response(400)
+
+def get_post(event, context):
+    """ Returns post data from given post id """
+
+    # check connection to DB valid
+    if conn is None:
+        return connection_error()
+
+    # confirm user_id is passed via query
+    if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('post_id') is not None:
+        post_id = event["queryStringParameters"]["post_id"]
+        body = { }
+        try:
+            with conn.cursor() as curr:
+                curr.execute('select PostID, PostContent, PostUser, PostGroup from Post where PostID = {}'.format(post_id))
+                body = curr.fetchone()
+                conn.commit()
+                return format_response(200, body) 
+        except pymysql.MySQLError as e:
+            print(e)
+            return format_response(500)
+    else:
+        return format_response(400)
+
+def get_group_posts(event, context):
+    """ Returns list of all posts made in given group """
+
+    # check connection to DB valid
+    if conn is None:
+        return connection_error()
+
+    # confirm user_id is passed via query
+    if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
+        group_id = event["queryStringParameters"]["group_id"]
+        body = { 'group id': group_id, 'posts': [] }
+        try:
+            with conn.cursor() as curr:
+                curr.execute('select PostID, PostContent, PostUser, PostGroup from Post where PostGroup = {}'.format(group_id))
+                for row in curr:
+                    body['posts'].append(row)
+                conn.commit()
+                return format_response(200, body) 
+        except pymysql.MySQLError as e:
+            print(e)
+            return format_response(500)
+    else:
+        return format_response(400)

@@ -211,7 +211,7 @@ Returns JSON Data of all groups a given user is a member of
 ***Create Post***
 
 Creates post in database from given details
-* URL: /group/post
+* URL: /group/posts
 * Method: POST
 * Post Request:
     ```json
@@ -228,13 +228,56 @@ Creates post in database from given details
 ***Get Users' Posts***
 
 Returns JSON Data of all posts from a given user
-* URL: /user/post?user_id={id}
+* URL: /user/posts?user_id={id}
 * Method: GET
 * URL Parameter: {id} - integer value
 * Success Response:
     ```json
     {
         "user id": 1,
+        "posts" [
+            {
+                "PostID": 1,
+                "PostContent": "This is a test post",
+                "PostUser": 1,
+                "PostGroup": 1
+            },
+            {
+                "PostID": 2,
+                "PostContent": "This is another post",
+                "PostUser": 1,
+                "PostGroup": 5
+            }
+        ]
+    }
+    ```
+
+***Get Post***
+
+Returns JSON Data of a post from a given post id
+* URL: /posts?post_id={id}
+* Method: GET
+* URL Parameter: {id} - integer value
+* Success Response:
+    ```json
+    {
+        "PostID": 1,
+        "PostContent": "This is a test post",
+        "PostUser": 1,
+        "PostGroup": 1
+    }
+    ```
+
+***Get Groups' Posts***
+
+Returns JSON Data of all posts from in a given group
+* URL: /group/posts?user_id={id}
+* Method: GET
+* URL Parameter: {id} - integer value
+* Success Response:
+    ```json
+    {
+        "group id": 1,
         "posts" [
             {
                 "PostID": 1,

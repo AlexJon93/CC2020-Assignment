@@ -96,7 +96,7 @@ functions:
     events:
       - http:
           method: POST
-          path: /group/post
+          path: /group/posts
           cors: true
           authorizer: auth
 
@@ -106,6 +106,24 @@ functions:
       - http:
           method: GET
           path: /user/posts
+          cors: true
+          authorizer: auth
+
+  get_group_posts:
+    handler: group/posts.get_group_posts
+    events:
+      - http:
+          method: GET
+          path: /group/posts
+          cors: true
+          authorizer: auth
+
+  get_post:
+    handler: group/posts.get_post
+    events:
+      - http:
+          method: GET
+          path: /posts
           cors: true
           authorizer: auth
 
