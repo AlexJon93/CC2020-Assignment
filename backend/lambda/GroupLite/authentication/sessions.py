@@ -82,7 +82,7 @@ def auth(event, context):
             return get_policy('Allow')
     except (jwt.DecodeError, jwt.ExpiredSignatureError) as e:
         print(e)
-        return get_policy('Unauthorised', {"error": "invalid token"})
+        return get_policy('Deny', {"error": "invalid token"})
 
     return get_policy('Deny')
 

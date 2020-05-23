@@ -91,6 +91,24 @@ functions:
           cors: true
           authorizer: auth
 
+  create_post:
+    handler: group/posts.create_post
+    events:
+      - http:
+          method: POST
+          path: /group/post
+          cors: true
+          authorizer: auth
+
+  get_users_posts:
+    handler: group/posts.get_users_posts
+    events:
+      - http:
+          method: GET
+          path: /user/posts
+          cors: true
+          authorizer: auth
+
   signup:
     handler: users/users.post_user
     events:

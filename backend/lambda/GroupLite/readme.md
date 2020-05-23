@@ -204,3 +204,50 @@ Returns JSON Data of all groups a given user is a member of
         ]
     }
     ```
+
+**Posts**
+--
+
+***Create Post***
+
+Creates post in database from given details
+* URL: /group/post
+* Method: POST
+* Post Request:
+    ```json
+    {
+        "post_content": "This is a test post",
+        "post_user": 1,
+        "post_group": 1
+    }
+    ```
+* Success Response:
+    * Status Code: 200
+    * No JSON Response
+
+***Get Users' Posts***
+
+Returns JSON Data of all posts from a given user
+* URL: /user/post?user_id={id}
+* Method: GET
+* URL Parameter: {id} - integer value
+* Success Response:
+    ```json
+    {
+        "user id": 1,
+        "posts" [
+            {
+                "PostID": 1,
+                "PostContent": "This is a test post",
+                "PostUser": 1,
+                "PostGroup": 1
+            },
+            {
+                "PostID": 2,
+                "PostContent": "This is another post",
+                "PostUser": 2,
+                "PostGroup": 1
+            }
+        ]
+    }
+    ```
