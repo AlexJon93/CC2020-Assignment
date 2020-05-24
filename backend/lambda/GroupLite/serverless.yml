@@ -6,6 +6,7 @@ provider:
   name: aws
   runtime: python3.8
   role: arn:aws:iam::986870807352:role/lambda-vpc-role
+
   vpc:
     securityGroupIds:
       - sg-19f02336
@@ -17,27 +18,190 @@ provider:
       - subnet-beab5d9f
       - subnet-cddd35ab
 
+  environment:
+    RDS_HOST: 'grouplite-db.clidohi5pcdd.us-east-1.rds.amazonaws.com'
+    DB_PASS: 'SolidSnake21!'
+    DB_USERNAME: 'alexj'
+    DB_NAME: 'grouplitedb'
+    TOKEN_SECRET: '0603'
+
 plugins:
   - serverless-offline
 
+package:
+  individually: true
+  exclude:
+    - venv/**
+
 functions:
-  get_user:
-    handler: users/users.get_user
+  auth:
+    handler: authentication/sessions.auth
+
+  get_users:
+    handler: users/users.get_users
     events:
-      - httpApi:
+      - http:
           method: GET
           path: /user
+          cors: true
+          authorizer: auth
+
+  create_group:
+    handler: group/group.create_group
+    events:
+      - http:
+          method: POST
+          path: /group
+          cors: true
+          authorizer: auth
+
+  get_group:
+    handler: group/group.get_group
+    events:
+      - http:
+          method: GET
+          path: /group
+          cors: true
+          authorizer: auth
+
+  get_group_members:
+    handler: group/membership.get_group_members
+    events:
+      - http:
+          method: GET
+          path: /group/members
+          cors: true
+          authorizer: auth
+
+  get_user_groups:
+    handler: group/membership.get_user_groups
+    events:
+      - http:
+          method: GET
+          path: /user/groups
+          cors: true
+          authorizer: auth
+
+  add_membership:
+    handler: group/membership.add_membership
+    events:
+      - http:
+          method: POST
+          path: /group/members
+          cors: true
+          authorizer: auth
+
+  create_post:
+    handler: group/posts.create_post
+    events:
+      - http:
+          method: POST
+          path: /group/posts
+          cors: true
+          authorizer: auth
+
+  get_users_posts:
+    handler: group/posts.get_users_posts
+    events:
+      - http:
+          method: GET
+          path: /user/posts
+          cors: true
+          authorizer: auth
+
+  get_group_posts:
+    handler: group/posts.get_group_posts
+    events:
+      - http:
+          method: GET
+          path: /group/posts
+          cors: true
+          authorizer: auth
+
+  get_post:
+    handler: group/posts.get_post
+    events:
+      - http:
+          method: GET
+          path: /posts
+          cors: true
+          authorizer: auth
+
+  create_event:
+    handler: event/event.create_event
+    events:
+      - http:
+          method: POST
+          path: /event
+          cors: true
+          authorizer: auth
+
+  get_event:
+    handler: event/event.get_event
+    events:
+      - http:
+          method: GET
+          path: /event
+          cors: true
+          authorizer: auth
+
+  get_group_events:
+    handler: event/event.get_group_events
+    events:
+      - http:
+          method: GET
+          path: /group/events
+          cors: true
+          authorizer: auth
+
+  get_users_events:
+    handler: event/event.get_users_events
+    events:
+      - http:
+          method: GET
+          path: /user/events
+          cors: true
+          authorizer: auth
+
+  add_attendance:
+    handler: event/attending.add_attendance
+    events:
+      - http:
+          method: POST
+          path: /event/attend
+          cors: true
+          authorizer: auth
+
+  get_attending:
+    handler: event/attending.get_attending
+    events:
+      - http:
+          method: GET
+          path: /user/events/attend
+          cors: true
+          authorizer: auth
+
+  get_event_attendees:
+    handler: event/attending.get_event_attendees
+    events:
+      - http:
+          method: GET
+          path: /event/attend
+          cors: true
+          authorizer: auth
 
   signup:
     handler: users/users.post_user
     events:
-      - httpApi:
+      - http:
           method: POST
           path: /user
+          cors: true
 
   login:
     handler: authentication/sessions.login
     events:
-      - httpApi:
-          method: GET
+      - http:
+          method: POST
           path: /login
+          cors: true

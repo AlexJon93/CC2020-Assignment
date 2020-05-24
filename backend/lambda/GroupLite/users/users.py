@@ -1,91 +1,100 @@
 import json
-import boto3
+import os
 import pymysql
 
-from users import rds_config
-from botocore.exceptions import ClientError
+from urllib import parse
 
-rds_host = "grouplite-db.clidohi5pcdd.us-east-1.rds.amazonaws.com"
-name = rds_config.db_username
-password = rds_config.db_password
-db_name = rds_config.db_name
+from misc import *
 
-# try:
-#     conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name)
-# except pymysql.MySQLError as e:
-#     conn = None
-#     print(e)
+rds_host = os.environ['RDS_HOST']
+name = os.environ['DB_USERNAME']
+password = os.environ['DB_PASS']
+db_name = os.environ['DB_NAME']
+
+# try to connect to mysql db
+try:
+    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
+except pymysql.MySQLError as e:
+    conn = None
+    print(e)
 
 
-def get_user(event, context):
+def get_users(event, context):
+    """ Returns either all users in DB or single user in query """
+
+    # check that connection to db valid
     if conn is None:
         return connection_error()
 
-    body = {
-        "message": "success!",
-        "users": {}
-    }
+    # check if call is for specific user via id
+    if event.get("queryStringParameters") is not None and event.get("queryStringParameters").get("user_id") is not None:
+        user_id = event["queryStringParameters"]["user_id"]
+        # executes query to get user and adds to the response body
+        with conn.cursor() as cur:
+            cur.execute("select MemberID, Username, Email from Member where MemberID={}".format(user_id))
+            body = cur.fetchone()
+            conn.commit()
 
-    with conn.cursor() as cur:
-        cur.execute("select * from User")
-        pos = 0
-        for row in cur:
-            body["users"][pos] = row
-            pos += 1
-    
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
+    # check if call is for specific user via email
+    elif event.get("queryStringParameters") is not None and event.get("queryStringParameters").get("user_email") is not None:
+        user_email = event["queryStringParameters"]["user_email"]
+        # executes query to get user and adds to the response body
+        with conn.cursor() as cur:
+            cur.execute("select MemberID, Username, Email from Member where Email=\'{}\'".format(user_email))
+            body = cur.fetchone()
+            conn.commit()
 
-    return response
+    # check if call is for all users
+    elif event.get("queryStringParameters") is None:
+        body = { "users": [] }
+        # executes get all query and then iterates through response, adding to the response body
+        with conn.cursor() as cur:
+            cur.execute("select MemberID, Username, Email from Member")
+            for row in cur:
+                body["users"].append(row)
+
+    # return error if invalid request
+    else:
+        return format_response(400, {"error": "Invalid request"})
+
+    return format_response(200, body)
 
 def post_user(event, context):
-    # if conn is None:
-    #     return connection_error()
+    """ Creates User from details in post request """
 
-    if event['body'] is None:
-        return { "statusCode": 404, "body": json.dumps({"error":"body is null"}) }
+    # check that connection to db valid
+    if conn is None:
+        return connection_error()
 
+    # check that post request body is not empty
+    if event.get('body') is None:
+        return format_response(404, {"error":"post request is empty"})
+
+    # check that the request contains all required fields
     request = json.loads(event['body'])
-    cognito = boto3.client('cognito-idp')
+    missing_params = check_missing('username', 'email', 'password', request=request)
+    
+    if missing_params is not None:
+        return format_response(400, {"errors": missing_params})
 
+    # generate salt followed by password hash
+    salt = os.urandom(16)
+    pass_hash = get_hash(request.get('password'), salt)
+
+    # convert salt to storable format
+    db_salt = int.from_bytes(salt, byteorder='big')
+
+    # create user in database
     try:
-        signup_response = cognito.sign_up(
-            ClientId='56pl5bqsphd2j6e2phi8f4ioqi',
-            Username=request['email'],
-            Password=request['password'],
-            UserAttributes=[
-                {
-                    'Name': 'email',
-                    'Value': request['email']
-                },
-                {
-                    'Name': 'preferred_username',
-                    'Value': request['username']
-                }
-            ]  
-        )
-    except ClientError as error:
-        return { "statusCode": 400, "body": json.dumps(error.response['Error']) }
+        with conn.cursor() as cur:
+            cur.execute("create table if not exists Member ( MemberID int auto_increment NOT NULL, PasswordHash varchar(255) NOT NULL, "+
+                        " PassSalt varchar(255) NOT NULL, Username varchar(255) NOT NULL, Email varchar(255) NOT NULL UNIQUE, PRIMARY KEY (MemberID))")
+            cur.execute("insert into Member (Username, Email, PasswordHash, PassSalt)"+
+                        " values (\'{}\', \'{}\', \'{}\', \'{}\')".format(request.get('username'), request.get('email'), pass_hash, db_salt))
+            conn.commit()
+    except pymysql.IntegrityError as e:
+        print(e)
+        return format_response(400, {'error': repr(e)})
 
-    # with conn.cursor() as cur:
-    #     cur.execute("create table if not exists User ( UserID int NOT NULL, Name varchar(255) NOT NULL, PasswordHash varchar(255) NOT NULL, PRIMARY KEY (UserID))")
-    #     cur.execute('insert into User (UserID, Name, PasswordHash) values (1, "AlexJ", "AKUHDUUY12374")')
-    #     conn.commit()
-
-    # body = {
-    #     "message": "success!"
-    # }
-
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(request['username'])
-    }
-
-    return response
-
-def connection_error():
-    body = { "message": "issue connecting to db" }
-    response = { "statusCode": 404, "body": json.dumps(body) }
-    return response
+    # returns success statuscode if created
+    return format_response(200)
