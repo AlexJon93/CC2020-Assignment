@@ -31,21 +31,23 @@ def get_group(event, context):
     if conn is None:
         return connection_error()
     
+    base = "select GroupID, GroupName from MemberGroup"
+
     # returns full list of groups if not for specific group
     if event.get('queryStringParameters') is None:
-        req = "select GroupID, GroupName from MemberGroup"
+        req = base
         response = get(req, conn, 'groups')
         return response
 
     # check call is for specific group via id
     elif event.get('queryStringParameters').get('group_id') is not None:
-        req = "select GroupID, GroupName from MemberGroup where GroupID={}".format(event['queryStringParameters']['group_id'])
+        req = base + " where GroupID={}".format(event['queryStringParameters']['group_id'])
         response = get(req, conn)
         return response
 
     # check call is for specific group via name
     elif event.get('queryStringParameters').get('group_name') is not None:
-        req = "select GroupID, GroupName from MemberGroup where GroupName=\'{}\'".format(event['queryStringParameters']['group_name'])
+        req = base + " where GroupName=\'{}\'".format(event['queryStringParameters']['group_name'])
         response = get(req, conn)
         return response
 

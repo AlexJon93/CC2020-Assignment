@@ -196,10 +196,12 @@ Returns JSON Data of all groups a given user is a member of
         "user id": "1",
         "groups": [
             {
-                "GroupID": 1
+                "GroupID": 1,
+                "GroupName": "Example Group"
             },
             {
-                "GroupID": 5
+                "GroupID": 5,
+                "GroupName": "Another Group"
             }
         ]
     }

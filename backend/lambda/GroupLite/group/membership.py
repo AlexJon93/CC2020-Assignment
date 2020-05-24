@@ -31,7 +31,8 @@ def get_user_groups(event, context):
 
     # confirm user_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('user_id') is not None:
-        req = 'select MemberID from Membership where GroupID = \'{}\''.format(event["queryStringParameters"]["user_id"])
+        req = 'select m.GroupID, GroupName from Membership m join MemberGroup g on m.GroupID = g.GroupID where MemberID = {}'.format(
+            event["queryStringParameters"]["user_id"])
         response = get(req, conn, 'groups')
         return response
 
