@@ -60,7 +60,6 @@ Returns JSON data of all members in group
 * Success Response
     ```json
     {
-        "group id": "1",
         "members": [
             {
                 "MemberID": 1
@@ -77,6 +76,21 @@ Returns JSON data of all members in group
 Creates Membership relation between given user and group
 * URL: /group/members
 * Method: POST
+* Post Request:
+    ```json
+    {
+        "group_id": 1,
+        "user_id": 1
+    }
+    ```
+* Success Response
+    * Status Code: 200
+    * No JSON Response
+
+***Leave Group***
+Deletes Membership relation between given user and group
+* URL: /group/members
+* Method: DELETE
 * Post Request:
     ```json
     {

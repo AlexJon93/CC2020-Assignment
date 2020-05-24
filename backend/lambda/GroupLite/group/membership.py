@@ -17,7 +17,7 @@ def get_group_members(event, context):
     # confirm group_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
         req = 'select MemberID from Membership where GroupID = \'{}\''.format(event["queryStringParameters"]["group_id"])
-        response = get(req, conn)
+        response = get(req, conn, 'members')
         return response
 
     return format_response(400)
@@ -53,3 +53,12 @@ def add_membership(event, context):
     insert_req = "insert into Membership(MemberID, GroupID) values({}, {})".format(request.get('user_id'), request.get('group_id'))
 
     return post(create_req, insert_req, conn)
+
+def delete_membership(event, context):
+    """Removes membership relation between user and group"""
+
+    outcome, request = check_post('user_id', 'group_id', conn=conn, event=event)
+    if outcome is False:
+        return request
+
+    return delete('Membership', 'MemberID = {} and GroupID = {}'.format(request['user_id'], request['group_id']), conn)

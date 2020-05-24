@@ -91,6 +91,15 @@ functions:
           cors: true
           authorizer: auth
 
+  delete_membership:
+    handler: group/membership.delete_membership
+    events:
+      - http:
+          method: DELETE
+          path: /group/members
+          cors: true
+          authorizer: auth
+
   create_post:
     handler: group/posts.create_post
     events:

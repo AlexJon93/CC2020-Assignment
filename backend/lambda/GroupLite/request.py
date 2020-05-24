@@ -40,7 +40,8 @@ def check_post(*params, conn, event):
     return (True, request)
 
 def post(create_query, insert_query, conn):
-    """ Executes and returns post requests to the DB """
+    """Connects to and executes post requests to the DB """
+
     try:
         with conn.cursor() as cur:
             cur.execute(create_query)
@@ -56,6 +57,7 @@ def post(create_query, insert_query, conn):
     return format_response(200)
 
 def get(get_query, conn, multiple=None):
+    """Connects to and executes get requests in the DB"""
 
     try:
         if multiple is not None:
@@ -76,5 +78,19 @@ def get(get_query, conn, multiple=None):
 
     return format_response(200, result)
 
-# to implement:
-# get
+def delete(table, row_id, conn):
+    """Connects to and executes delete requests in the DB"""
+
+    try:
+        with conn.cursor() as cur:
+            query = 'delete from {} where {}'.format(table, row_id)
+            cur.execute(query)
+            conn.commit()
+    except pymysql.IntegrityError as e:
+        print(e)
+        return format_response(400, {'error': repr(e)})
+    except (pymysql.MySQLError, Exception) as e:
+        print(e)
+        return format_response(500)
+
+    return format_response(200)
