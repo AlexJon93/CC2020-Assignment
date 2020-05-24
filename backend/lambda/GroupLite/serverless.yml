@@ -154,6 +154,15 @@ functions:
           cors: true
           authorizer: auth
 
+  get_image:
+    handler: group/posts.get_image
+    events:
+      - http:
+          method: GET
+          path: /image
+          cors: true
+          authorizer: auth
+
   create_event:
     handler: event/event.create_event
     events:

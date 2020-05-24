@@ -2,6 +2,7 @@ import os
 import pymysql
 
 from misc import *
+from datetime import datetime
 
 def db_connect():
     """ Attempts to create connection to the DB """
@@ -94,3 +95,32 @@ def delete(table, row_id, conn):
         return format_response(500)
 
     return format_response(200)
+
+def handle_image(data, user_id):
+    """Uploads image to S3 Bucket and returns id"""
+
+    import boto3
+
+    s3_client = boto3.client('s3')
+    bucket_name = 'grouplite-bucket'
+    key = str(user_id)+'-'+str(datetime.now())
+
+    s3_client.put_object(Bucket=bucket_name, Body=data, Key=key)
+    return key
+
+def down_image(image_id):
+    """Downloads base64 encoded image from S3 Bucket"""
+
+    import boto3
+    from botocore import errorfactory
+
+    s3_client = boto3.client('s3')
+    bucket_name = 'grouplite-bucket'
+
+    try:
+        response = s3_client.get_object(Bucket=bucket_name, Key=image_id)
+    except errorfactory.ClientError as e:
+        print(e)
+        return format_response(400)
+
+    return response['Body'].read()
