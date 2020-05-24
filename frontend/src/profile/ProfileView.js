@@ -1,19 +1,19 @@
 import React from 'react';
-import {Card, ListGroup} from 'react-bootstrap';
-import PropTypes from 'prop-types';
 import { connect} from 'react-redux';
-import GroupsListView from '../group-list/GroupListView';
+import GroupListView from '../group-list/GroupListView';
+import GroupForm from './GroupForm';
 
 const mapStateToProps = state => {
-    console.log(state);
     return {...state.user};
 }
 
-const ConnectedProfileView = ({Username, groups}) => {
+const ConnectedProfileView = (props) => {
+    console.log(props);
     return (
         <div>
-            <h1>{Username}'s Groups</h1>
-            <GroupsListView groups={groups}/>
+            <h1>{props.Username}'s Groups</h1>
+            <GroupListView groups={props.groups}/>
+            <GroupForm/>
         </div>
     );
 };

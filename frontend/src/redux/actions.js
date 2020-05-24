@@ -1,4 +1,4 @@
-import { SET_GROUP_ID, CLEAR_USER, ADD_TOKEN, POST_REGISTRATION, SET_USER, ADD_USER_GROUP, ADD_POST, ADD_POSTER_NAME, SET_LOADING, CLEAR_WALL, SET_GROUP_NAME } from "./action-types";
+import { ADD_GROUP_MEMBER, SET_GROUP_ID, CLEAR_USER, ADD_TOKEN, POST_REGISTRATION, SET_USER, ADD_USER_GROUP, ADD_POST, ADD_POSTER_NAME, SET_LOADING, CLEAR_WALL, SET_GROUP_NAME, SET_IS_MEMBER } from "./action-types";
 
 export function registerUser(payload) {
     return { type: POST_REGISTRATION, payload };
@@ -17,7 +17,7 @@ export const clearUser = () => {
 }
 
 export const addGroup = (group) => {
-    return {type: ADD_USER_GROUP, action: group}
+    return {type: ADD_USER_GROUP, group: group}
 }
 
 export const addPost = (post) => {
@@ -42,4 +42,12 @@ export const setGroupName = GroupName => {
 
 export const setGroupID = group_id => {
     return {type: SET_GROUP_ID, group_id: group_id}
+}
+
+export const setIsMember = isMember => {
+    return {type: SET_IS_MEMBER, isMember: isMember};
+};
+
+export const addGroupMember = member => {
+    return {type: ADD_GROUP_MEMBER, member: member}
 }

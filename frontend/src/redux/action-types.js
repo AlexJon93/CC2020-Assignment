@@ -9,3 +9,5 @@ export const SET_LOADING = "SET_LOADING";
 export const CLEAR_WALL = "CLEAR_WALL";
 export const SET_GROUP_NAME = "SET_GROUP_NAME";
 export const SET_GROUP_ID = 'SET_GROUP_ID';
+export const SET_IS_MEMBER = "SET_IS_MEMBER";
+export const ADD_GROUP_MEMBER = "ADD_GROUP_MEMBER";

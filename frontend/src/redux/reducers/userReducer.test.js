@@ -1,14 +1,15 @@
 import userReducer from "./userReducer";
 
 const blankState = {
-    MemberId: null,
+    MemberID: null,
     Email: null,
     Username: null,
-    groups: []
+    groups: [],
+    loading: true
 } 
 
 const filledState = {
-    MemberId: 1,
+    MemberID: 1,
     Email: "test@gmail.com",
     Username: "test",
     groups: [
@@ -20,7 +21,8 @@ const filledState = {
             GroupID: 2,
             GroupName: "That One Group"
         }
-    ]
+    ],
+    loading: true
 };
 
 
@@ -38,8 +40,8 @@ test("Set user for only one field on a blank state", () => {
     const action = {
         type: "SET_USER",
         user: {
-            Email: email 
-        }
+            Email: email
+        } 
     }
 
     const expected = {
@@ -61,7 +63,7 @@ test("Set user for only one field on non-blank state", () => {
     }
 
     const expected = {
-        ...blankState,
+        ...filledState,
         Username: username
     };
 
@@ -104,31 +106,3 @@ test("Add a group that exists does nothing", () => {
     
     expect(userReducer(filledState,action)).toEqual(filledState);
 })
-
-test("Update old group when new version is added", () => {
-    const action = {
-        type: "ADD_USER_GROUP",
-        group: {
-            GroupID: 1,
-            GroupName: "Even Cooler Group"
-        }
-    };
-
-    const expected = {
-        ...filledState,
-        groups: [
-            {
-                GroupID:1,
-                GroupName: "Even Cooler Group"
-            },
-            {
-                GroupID: 2,
-                GroupName: "That One Group"
-            }
-        ]
-    };
-
-    // Note this doesn't check that the rest of the state hasn't changed
-    expect(userReducer(filledState,action).groups.map(group => group.GroupName).sort())
-        .toEqual(expected.groups.map(group => group.GroupName).sort());
-});

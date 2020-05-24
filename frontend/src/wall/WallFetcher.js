@@ -1,6 +1,7 @@
 import store from '../redux/store'; 
-import { setGroupID, setGroupName, addPost, addPosterName, setLoading } from "../redux/actions";
+import { setGroupID, setGroupName, addPost, addPosterName, setLoading, setIsMember, addGroupMember } from "../redux/actions";
 import { sendRequest } from "../helpers";
+import docCookies from 'doc-cookies';
 
 export default class WallFetcher {
     constructor(GroupID) {
@@ -11,6 +12,9 @@ export default class WallFetcher {
 
         this.postsRequest = new XMLHttpRequest();
         this.postsRequest.onreadystatechange = this.postsResponseHandler;
+
+        this.groupMembsRequest = new XMLHttpRequest();
+        this.groupMembsRequest.onreadystatechange = this.groupMembsResponseHandler;
     }
 
     // Start the request chain
@@ -24,6 +28,8 @@ export default class WallFetcher {
         sendRequest(this.groupNameRequest, "GET", "/group", params);
         // Get posts for the group
         sendRequest(this.postsRequest, "GET", "/group/posts", params);
+        // Get members for the group
+        sendRequest(this.groupMembsRequest, "GET", "/group/members", params);
     }
 
     groupNameResponseHandler = () => {
@@ -32,6 +38,7 @@ export default class WallFetcher {
             this.groupNameRequest.status === 200) {
 
             const groupJSON = JSON.parse(this.groupNameRequest.responseText);
+            console.log(groupJSON);
             store.dispatch(setGroupName(groupJSON.GroupName));
         }
 
@@ -49,7 +56,7 @@ export default class WallFetcher {
                 store.dispatch(addPost(post));
 
                 // Request names for each post
-                var request = new XMLHttpRequest();
+                let request = new XMLHttpRequest();
 
                 // Dispatch on response
                 request.onreadystatechange = () => {
@@ -64,5 +71,46 @@ export default class WallFetcher {
             // Set loading to false
             store.dispatch(setLoading(false));
         }
+    }
+
+    groupMembsResponseHandler = () => {
+        if (this.groupMembsRequest.readyState === XMLHttpRequest.DONE) {
+            
+            if (this.groupMembsRequest.status === 200) {
+
+                const membersJSON = JSON.parse(this.groupMembsRequest.responseText);
+                const myId = docCookies.getItem('id');
+
+                const isMember = membersJSON.members.some(member => {
+                    console.log(member.MemberID);
+                    return member.MemberID == myId;
+                });
+                store.dispatch(setIsMember(isMember));
+
+
+                // Get names for all the members and push it to the store
+                for (const member of membersJSON.members) {
+                    let request = new XMLHttpRequest();
+
+                    request.onreadystatechange = () => {
+                        // Add {UserID, Username} to the members list 
+                        if (request.readyState === XMLHttpRequest.DONE) {
+
+                            if (request.status === 200) {
+                                const memberJSON = JSON.parse(request.responseText);
+                                const {Email, ...memberToAdd} = memberJSON;
+                                store.dispatch(addGroupMember(memberToAdd));
+                            }
+                        }
+                    }
+
+                    sendRequest(request, "GET", "/user", {user_id: member.MemberID});
+                }
+            }
+            else {
+                console.log("Couldn't get members");
+                console.log(this.groupNameRequest.response);
+            }
+        } 
     }
 }

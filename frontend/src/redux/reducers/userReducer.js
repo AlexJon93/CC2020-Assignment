@@ -1,24 +1,24 @@
 import { SET_USER, CLEAR_USER, ADD_USER_GROUP} from '../action-types';
 
 const blankUser = {
-    MemberId: null,
+    MemberID: null,
     Username: null,
     Email: null,
-    groups: []
-};
+    groups: [],
+    loading:true
+}
 
 const userReducer = (state, action) => {
 
     switch(action.type) {
-
         case SET_USER:
-            return {...blankUser, ...action.user };
+            return {...state, ...action.user };
 
         case CLEAR_USER:
             return blankUser;
 
         case ADD_USER_GROUP:
-            // TODO: Consider making this whole thing one for loop check for efficiency
+            console.log(state, action);
             const exists = state.groups.some(group => group.GroupID === action.group.GroupID); 
 
             if (!exists) {
@@ -31,31 +31,7 @@ const userReducer = (state, action) => {
                 };
             }
             else {
-                // Compare the two groups
-                for (const group of state.groups) {
-                    if (group.GroupID === action.group.GroupID) {
-
-                        var equal = true;
-                        for (const key in group) {
-                            if (group[key] != action.group[key]) {
-                                equal = false;
-                                break;
-                            }
-                        }
-                        if (equal) {
-                            return state;
-                        }
-                    }
-                } 
-                // Replace the old version with the new
-                const newGroups = state.groups.filter(group => group.GroupID !== action.group.GroupID); 
-                return {
-                    ...state,
-                    groups: [
-                        action.group,
-                        ...newGroups,
-                    ]
-                };
+                return state;
             }
 
         default:

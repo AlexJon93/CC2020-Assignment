@@ -4,23 +4,27 @@ import Listing from './Listing.js';
 import Table from 'react-bootstrap/Table';
 
 const GroupListView = ({groups}) => {
-    const listings = groups.map(group => <Listing {...group}/>); 
+
+    var listings;
+    if (groups != undefined) {
+        listings = groups.map(group => <Listing {...group}/>); 
+    }
     return (
-       <Table>
-           <thead>
-               <tr>
-                   <th>Group Name</th>
-                   <th>Members</th>
-               </tr>
-           </thead>
-           <tbody>
-               {listings}
-           </tbody>
-       </Table> 
+        <Table>
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {groups ? listings : <tr><td>No Groups</td></tr>}
+            </tbody>
+        </Table> 
     );
 }
 
+
 GroupListView.propTypes = {
-    groups: PropTypes.array.isRequired
+    groups: PropTypes.array
 };
 export default GroupListView;

@@ -2,8 +2,15 @@ import React from 'react';
 import {sendRequest} from '../helpers';
 import PostFormView from './PostFormView';
 import docCookies from 'doc-cookies';
+import {connect} from 'react-redux';
 
-class PostForm extends React.Component {
+const mapStateToProps = state => {
+    return {
+        GroupID: state.wall.group_id
+    };
+}
+
+class ConnectPostForm extends React.Component {
     constructor(props) {
         super(props);
 
@@ -51,4 +58,6 @@ class PostForm extends React.Component {
         return <PostFormView onSubmit={this.onSubmit} onChange={this.changeHandler}/>
     }
 }
+
+const PostForm = connect(mapStateToProps)(ConnectPostForm);
 export default PostForm;

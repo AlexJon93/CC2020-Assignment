@@ -21,16 +21,29 @@ export const clearSession = () => {
         docCookies.removeItem('id');
 }
 
-export const sendRequest = (request, method, url, params) => {
+export const sendRequest = (request, method, url, params, async=true) => {
   const token = docCookies.getItem(TOKEN);
 
   if (method === "POST") {
-    request.open(method, URL + url);
+    console.log("POSTing");
+    if(async) {
+      request.open(method, URL + url);
+    }
+    else {
+      request.open(method, URL + url, false);
+    }
     request.setRequestHeader("Authorization", token);
-    request.send(params);
+    console.log(JSON.stringify(params));
+    request.send(JSON.stringify(params));
   }
   else {
-    request.open(method, URL + url + formatParams(params));
+    console.log("not POSTing");
+    if (async) {
+      request.open(method, URL + url + formatParams(params));
+    }
+    else {
+      request.open(method, URL + url + formatParams(params), false);
+    }
     request.setRequestHeader("Authorization", token);
     request.send();
   }
