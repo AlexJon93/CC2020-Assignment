@@ -402,3 +402,61 @@ Returns JSON Data of all events created by a given user
         ]
     }
     ```
+
+***Add Attendance***
+
+Creates attendance relation between given user and event
+* URL: /event/attend
+* Method: POST
+* Post Request:
+    ```json
+    {
+        "event_id": 1,
+        "event_attendee": 1
+    }
+    ```
+* Success Response:
+    * Status Code: 200
+    * No JSON Response
+
+***Get Attending***
+
+Returns JSON Data of all events a user is attending
+* URL: /user/events/attend?user_id={id}
+* Method: GET
+* URL Parameter: {id} = integer value
+* Success Response:
+    ```json
+    {
+        "user id": "1",
+        "events": [
+            {
+                "EventID": 1
+            },
+            {
+                "EventID": 5
+            }
+        ]
+    }
+    ```
+
+***Get Event Attendees***
+
+Returns JSON Data of all users attending a given event
+* URL: /event/attend?event_id={id}
+* Method: GET
+* URL Parameter: {id} = integer value
+* Success Response:
+    ```json
+    {
+        "event id": "1",
+        "attendees": [
+            {
+                "AttendeeID": 1
+            },
+            {
+                "AttendeeID": 5
+            }
+        ]
+    }
+    ```

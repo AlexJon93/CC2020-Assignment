@@ -163,6 +163,33 @@ functions:
           cors: true
           authorizer: auth
 
+  add_attendance:
+    handler: event/attending.add_attendance
+    events:
+      - http:
+          method: POST
+          path: /event/attend
+          cors: true
+          authorizer: auth
+
+  get_attending:
+    handler: event/attending.get_attending
+    events:
+      - http:
+          method: GET
+          path: /user/events/attend
+          cors: true
+          authorizer: auth
+
+  get_event_attendees:
+    handler: event/attending.get_event_attendees
+    events:
+      - http:
+          method: GET
+          path: /event/attend
+          cors: true
+          authorizer: auth
+
   signup:
     handler: users/users.post_user
     events:
