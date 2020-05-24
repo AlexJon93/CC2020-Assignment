@@ -127,6 +127,42 @@ functions:
           cors: true
           authorizer: auth
 
+  create_event:
+    handler: event/event.create_event
+    events:
+      - http:
+          method: POST
+          path: /event
+          cors: true
+          authorizer: auth
+
+  get_event:
+    handler: event/event.get_event
+    events:
+      - http:
+          method: GET
+          path: /event
+          cors: true
+          authorizer: auth
+
+  get_group_events:
+    handler: event/event.get_group_events
+    events:
+      - http:
+          method: GET
+          path: /group/events
+          cors: true
+          authorizer: auth
+
+  get_users_events:
+    handler: event/event.get_users_events
+    events:
+      - http:
+          method: GET
+          path: /user/events
+          cors: true
+          authorizer: auth
+
   signup:
     handler: users/users.post_user
     events:
