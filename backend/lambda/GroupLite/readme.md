@@ -350,7 +350,6 @@ Returns JSON Data of all events in a given group
 * Success Response:
     ```json
     {
-        "group id": "1",
         "events": [
             {
                 "EventID": 1,
@@ -381,7 +380,6 @@ Returns JSON Data of all events created by a given user
 * Success Response:
     ```json
     {
-        "user id": "1",
         "events": [
             {
                 "EventID": 1,
@@ -428,7 +426,6 @@ Returns JSON Data of all events a user is attending
 * Success Response:
     ```json
     {
-        "user id": "1",
         "events": [
             {
                 "EventID": 1
@@ -449,7 +446,6 @@ Returns JSON Data of all users attending a given event
 * Success Response:
     ```json
     {
-        "event id": "1",
         "attendees": [
             {
                 "AttendeeID": 1

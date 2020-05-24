@@ -39,7 +39,42 @@ def check_post(*params, conn, event):
 
     return (True, request)
 
+def post(create_query, insert_query, conn):
+    """ Executes and returns post requests to the DB """
+    try:
+        with conn.cursor() as cur:
+            cur.execute(create_query)
+            cur.execute(insert_query)
+            conn.commit()
+    except pymysql.IntegrityError as e:
+        print(e)
+        return format_response(400, {'error': repr(e)})
+    except (pymysql.MySQLError, Exception) as e:
+        print(e)
+        return format_response(500)
+
+    return format_response(200)
+
+def get(get_query, conn, multiple=None):
+
+    try:
+        if multiple is not None:
+            result = { multiple: [] }
+            with conn.cursor() as curr:
+                curr.execute(get_query)
+                for row in curr:
+                    result[multiple].append(row)
+
+        else:
+            with conn.cursor() as cur:
+                    cur.execute(get_query)
+                    result = cur.fetchone()
+                    conn.commit()
+    except (pymysql.MySQLError, Exception) as e:
+        print(e)
+        return format_response(500)
+
+    return format_response(200, result)
+
 # to implement:
-# check_get
-# post
 # get

@@ -15,6 +15,15 @@ def create_event(event, context):
     if outcome is False:
         return request
 
+    create_req = '''create table if not exists Event( 
+                    EventID int auto_increment NOT NULL,
+                    EventTitle varchar(255) NOT NULL, 
+                    EventCreator int NOT NULL, EventGroup int NOT NULL, 
+                    EventDate datetime, EventLocation varchar(255),
+                    foreign key(EventCreator) references Member(MemberID), 
+                    foreign key(EventGroup) references MemberGroup(GroupID), 
+                    primary key(EventID))'''
+
     # check for and insert optional values
     insert_cols = "insert into Event(EventTitle, EventCreator, EventGroup"
     insert_vals = ") values(\'{}\', {}, {}".format(request['event_title'], request['event_creator'], request['event_group'])
@@ -27,31 +36,9 @@ def create_event(event, context):
         insert_cols += ", EventLocation"
         insert_vals += ", \'{}\'".format(request['event_location'])
 
-    insert = insert_cols + insert_vals + ")"
+    insert_req = insert_cols + insert_vals + ")"
 
-    # run sql commands
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "create table if not exists Event( "+
-                    "EventID int auto_increment NOT NULL, "+
-                    "EventTitle varchar(255) NOT NULL, " +
-                    "EventCreator int NOT NULL, " +
-                    "EventGroup int NOT NULL, " +
-                    "EventDate datetime, " +
-                    "EventLocation varchar(255), "+
-                    "foreign key(EventCreator) references Member(MemberID), " +
-                    "foreign key(EventGroup) references MemberGroup(GroupID), " +
-                    "primary key(EventID))"
-            )
-            cur.execute(insert)
-            conn.commit()
-    except pymysql.IntegrityError as e:
-        print(e)
-        return format_response(400, {'error': repr(e)})
-
-    # returns success statuscode if created
-    return format_response(200)
+    return post(create_req, insert_req, conn)
 
 def get_event(event, context):
     """ Returns event data from given event id """
@@ -62,22 +49,12 @@ def get_event(event, context):
 
     # confirm event_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('event_id') is not None:
-        event_id = event["queryStringParameters"]["event_id"]
-        body = { }
-        # execute query and if successful return event
-        try:
-            with conn.cursor() as curr:
-                curr.execute('select EventID, EventTitle, EventCreator, EventGroup, EventDate, EventLocation from Event where EventID = {}'.format(event_id))
-                event = curr.fetchone()
-                event['EventDate'] = str(event['EventDate'])
-                body = event
-                conn.commit()
-                return format_response(200, body) 
-        except pymysql.MySQLError as e:
-            print(e)
-            return format_response(500)
-    else:
-        return format_response(400)
+        req = ('select EventID, EventTitle, EventCreator, EventGroup, date_format(EventDate, \'%Y-%m-%d %T\') as EventDate, EventLocation from Event '
+        'where EventID = {}'.format(event["queryStringParameters"]["event_id"]))
+        response = get(req, conn)
+        return response
+
+    return format_response(400)
 
 def get_group_events(event, context):
     """ Returns list of all events in a given group """
@@ -88,22 +65,12 @@ def get_group_events(event, context):
 
     # confirm group_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
-        group_id = event["queryStringParameters"]["group_id"]
-        body = { 'group id': group_id, 'events': [] }
-        # execute query and if successful return events
-        try:
-            with conn.cursor() as curr:
-                curr.execute('select EventID, EventTitle, EventCreator, EventGroup, EventDate, EventLocation from Event where EventGroup = {}'.format(group_id))
-                for row in curr:
-                    row['EventDate'] = str(row['EventDate'])
-                    body['events'].append(row)
-                conn.commit()
-                return format_response(200, body) 
-        except pymysql.MySQLError as e:
-            print(e)
-            return format_response(500)
-    else:
-        return format_response(400)
+        req = ('select EventID, EventTitle, EventCreator, EventGroup, date_format(EventDate, \'%Y-%m-%d %T\') as EventDate, EventLocation from Event'
+        ' where EventGroup = {}'.format(event["queryStringParameters"]["group_id"]))
+        response = get(req, conn, 'events')
+        return response
+
+    return format_response(400)
 
 def get_users_events(event, context):
     """ Returns list of all events created by a given user """
@@ -114,19 +81,8 @@ def get_users_events(event, context):
 
     # confirm group_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('user_id') is not None:
-        user_id = event["queryStringParameters"]["user_id"]
-        body = { 'user id': user_id, 'events': [] }
-        # execute query and if successful return events
-        try:
-            with conn.cursor() as curr:
-                curr.execute('select EventID, EventTitle, EventCreator, EventGroup, EventDate, EventLocation from Event where EventCreator = {}'.format(user_id))
-                for row in curr:
-                    row['EventDate'] = str(row['EventDate'])
-                    body['events'].append(row)
-                conn.commit()
-                return format_response(200, body) 
-        except pymysql.MySQLError as e:
-            print(e)
-            return format_response(500)
-    else:
-        return format_response(400)
+        req = 'select EventID, EventTitle, EventCreator, EventGroup, date_format(EventDate, \'%Y-%m-%d %T\') as EventDate, EventLocation from Event where EventCreator = {}'.format(event["queryStringParameters"]["user_id"])
+        response = get(req, conn, 'events')
+        return response
+
+    return format_response(400)

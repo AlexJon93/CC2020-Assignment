@@ -25,11 +25,15 @@ def check_missing(*req_vals, request):
 
 def format_response(status, body = {}):
     """ Returns a formatted JSON response """
-    return {
-        "statusCode": status,
-        "headers": {
-            "content-type": "application/json",
-            "Access-Control-Allow-Origin": '*'
-        },
-        "body": json.dumps(body)
-    }
+    try:
+        return {
+            "statusCode": status,
+            "headers": {
+                "content-type": "application/json",
+                "Access-Control-Allow-Origin": '*'
+            },
+            "body": json.dumps(body)
+        }
+    except Exception as e:
+        print(e)
+        return format_response(500)

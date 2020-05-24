@@ -14,21 +14,15 @@ def create_group(event, context):
     if outcome is False:
         return request
 
-    # create table if does not exist and add new group
-    try:
-        with conn.cursor() as cur:
-            cur.execute("create table if not exists MemberGroup ( GroupID int auto_increment NOT NULL, GroupName varchar(255) NOT NULL UNIQUE, PRIMARY KEY (GroupID) )")
-            cur.execute("insert into MemberGroup (GroupName) values (\'{}\')".format(request.get('group_name')))
-            conn.commit()
-    except pymysql.MySQLError as e:
-        print(e)
-        return format_response(500)
-    except pymysql.IntegrityError as e:
-        print(e)
-        return format_response(400, {'error': str(e)})
+    create_req = ''' create table if not exists MemberGroup (
+        GroupID int auto_increment NOT NULL, 
+        GroupName varchar(255) NOT NULL UNIQUE, 
+        PRIMARY KEY (GroupID) ) '''
+
+    insert_req = 'insert into MemberGroup (GroupName) values (\'{}\')'.format(request.get('group_name'))
 
     # returns success statuscode if created
-    return format_response(200)
+    return post(create_req, insert_req, conn)
 
 def get_group(event, context):
     """ Returns either all groups in DB or group related to given id """
@@ -39,28 +33,20 @@ def get_group(event, context):
     
     # returns full list of groups if not for specific group
     if event.get('queryStringParameters') is None:
-        body = { "groups": [] }
-        with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from MemberGroup")
-            for row in curr:
-                body['groups'].append(row)
+        req = "select GroupID, GroupName from MemberGroup"
+        response = get(req, conn, 'groups')
+        return response
 
     # check call is for specific group via id
     elif event.get('queryStringParameters').get('group_id') is not None:
-        group_id = event['queryStringParameters']['group_id']
-        body = { }
-        with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from MemberGroup where GroupID={}".format(group_id))
-            body = curr.fetchone()
-            conn.commit()
+        req = "select GroupID, GroupName from MemberGroup where GroupID={}".format(event['queryStringParameters']['group_id'])
+        response = get(req, conn)
+        return response
 
     # check call is for specific group via name
     elif event.get('queryStringParameters').get('group_name') is not None:
-        group_name = event['queryStringParameters']['group_name']
-        body = { }
-        with conn.cursor() as curr:
-            curr.execute("select GroupID, GroupName from MemberGroup where GroupName=\'{}\'".format(group_name))
-            body = curr.fetchone()
-            conn.commit()
+        req = "select GroupID, GroupName from MemberGroup where GroupName=\'{}\'".format(event['queryStringParameters']['group_name'])
+        response = get(req, conn)
+        return response
 
-    return format_response(200, body)
+    return format_response(400)
