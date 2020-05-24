@@ -3,34 +3,16 @@ import pymysql
 import os
 
 from misc import *
+from request import *
 
-rds_host = os.environ['RDS_HOST']
-name = os.environ['DB_USERNAME']
-password = os.environ['DB_PASS']
-db_name = os.environ['DB_NAME']
-
-# try to connect to mysql db
-try:
-    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
-except pymysql.MySQLError as e:
-    conn = None
-    print(e)
+conn = db_connect()
 
 def create_group(event, context):
     """ Creates group based on details given in post request """
 
-    # checks that connection to DB is valid
-    if conn is None:
-        return connection_error()
-
-    # check body in request
-    if event.get('body') is None:
-        return format_response(404, {"error":"post request is empty"})
-    request = json.loads(event['body'])
-
-    # check that request has required value
-    if request.get('group_name') is None:
-        return format_response(400, {"errors": ["Missing parameter: GroupName"] })
+    outcome, request = check_post('group_name', conn=conn, event=event)
+    if outcome is False:
+        return request
 
     # create table if does not exist and add new group
     try:

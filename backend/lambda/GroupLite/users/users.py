@@ -5,19 +5,9 @@ import pymysql
 from urllib import parse
 
 from misc import *
+from request import *
 
-rds_host = os.environ['RDS_HOST']
-name = os.environ['DB_USERNAME']
-password = os.environ['DB_PASS']
-db_name = os.environ['DB_NAME']
-
-# try to connect to mysql db
-try:
-    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
-except pymysql.MySQLError as e:
-    conn = None
-    print(e)
-
+conn = db_connect()
 
 def get_users(event, context):
     """ Returns either all users in DB or single user in query """
@@ -62,20 +52,9 @@ def get_users(event, context):
 def post_user(event, context):
     """ Creates User from details in post request """
 
-    # check that connection to db valid
-    if conn is None:
-        return connection_error()
-
-    # check that post request body is not empty
-    if event.get('body') is None:
-        return format_response(404, {"error":"post request is empty"})
-
-    # check that the request contains all required fields
-    request = json.loads(event['body'])
-    missing_params = check_missing('username', 'email', 'password', request=request)
-    
-    if missing_params is not None:
-        return format_response(400, {"errors": missing_params})
+    outcome, request = check_post('email', 'username', 'password', conn=conn, event=event)
+    if outcome is False:
+        return request
 
     # generate salt followed by password hash
     salt = os.urandom(16)

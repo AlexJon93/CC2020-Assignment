@@ -3,18 +3,9 @@ import pymysql
 import os
 
 from misc import *
+from request import *
 
-rds_host = os.environ['RDS_HOST']
-name = os.environ['DB_USERNAME']
-password = os.environ['DB_PASS']
-db_name = os.environ['DB_NAME']
-
-# try to connect to mysql db
-try:
-    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
-except pymysql.MySQLError as e:
-    conn = None
-    print(e)
+conn = db_connect()
 
 def get_group_members(event, context):
     """ Returns list of all members of a given group """
@@ -67,19 +58,9 @@ def get_user_groups(event, context):
 def add_membership(event, context):
     """ Adds given user to a given group based on ids in post request """
 
-    # check connection to DB valid
-    if conn is None:
-        return connection_error()
-
-    # check request is not empty
-    if event.get('body') is None:
-        return format_response(404, {"error":"post request is empty"})
-    request = json.loads(event['body'])
-
-    # check request contains required values
-    missing_vals = check_missing('user_id', 'group_id', request=request)
-    if missing_vals is not None:
-        return format_response(400, {"errors": missing_vals})
+    outcome, request = check_post('user_id', 'group_id', conn=conn, event=event)
+    if outcome is False:
+        return request
 
     try:
         # add user to group

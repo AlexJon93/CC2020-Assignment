@@ -16,7 +16,7 @@ def get_hash(val, salt):
 
 def check_missing(*req_vals, request):
     """ Checks that request contains all requested values """
-
+    
     missing = set(req_vals) - set(request.keys())
     if not len(missing) == 0:
         return ['Missing parameter: {}'.format(val) for val in missing]

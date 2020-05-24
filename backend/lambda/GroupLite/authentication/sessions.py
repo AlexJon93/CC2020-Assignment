@@ -5,40 +5,16 @@ import jwt
 
 from datetime import datetime, timedelta
 from misc import *
+from request import *
 
-rds_host = os.environ['RDS_HOST']
-name = os.environ['DB_USERNAME']
-password = os.environ['DB_PASS']
-db_name = os.environ['DB_NAME']
-
-# try to connect to mysql db
-try:
-    conn = pymysql.connect(rds_host, user=name, passwd=password, db=db_name, cursorclass=pymysql.cursors.DictCursor)
-except pymysql.MySQLError as e:
-    conn = None
-    print(e)
+conn = db_connect()
 
 def login(event, context):
     """ Logs user in if posted details valid """
 
-    # Check that connection to DB is valid
-    if conn is None:
-        return connection_error()
-
-    # Check post request body not empty
-    if event.get('body') is None:
-        return format_response(400, {"error":"post request is empty"})
-
-    # Check request contains all required fields
-    try:
-        request = json.loads(event['body'])
-        missing_params = check_missing('email', 'password', request=request)
-    except:
-        print(event['body'])
-        return format_response(500)
-
-    if missing_params is not None:
-        return format_response(400, {"errors": missing_params})
+    outcome, request = check_post('email', 'password', conn=conn, event=event)
+    if outcome is False:
+        return request
 
     # Get user from DB
     user = None
