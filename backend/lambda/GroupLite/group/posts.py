@@ -30,6 +30,15 @@ def create_post(event, context):
 
     return post(create_req, insert_req, conn)
 
+def delete_post(event, context):
+    """ Deletes given post from DB """
+
+    outcome, request = check_post('post_id', conn=conn, event=event)
+    if outcome is False:
+        return request
+
+    return delete('Post', 'PostID = {}'.format(request['post_id']), conn)
+
 def get_users_posts(event, context):
     """ Returns list of all posts made by given user """
 

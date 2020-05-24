@@ -17,6 +17,21 @@ Creates post in database from given details
     * Status Code: 200
     * No JSON Response
 
+***Delete Post***
+
+Deletes given post from database
+* URL: /group/posts
+* Method: DELETE
+* Post Request:
+    ```json
+    {
+        "post_id": 1
+    }
+    ```
+* Success Response:
+    * Status Code: 200
+    * No JSON Response
+
 ***Get Users' Posts***
 
 Returns JSON Data of all posts from a given user

@@ -40,6 +40,15 @@ def create_event(event, context):
 
     return post(create_req, insert_req, conn)
 
+def delete_event(event, context):
+    """Deletes given event from DB"""
+
+    outcome, request = check_post('event_id', conn=conn, event=event)
+    if outcome is False:
+        return request
+
+    return delete('Event', 'EventID = {}'.format(request['event_id']), conn)
+
 def get_event(event, context):
     """ Returns event data from given event id """
 

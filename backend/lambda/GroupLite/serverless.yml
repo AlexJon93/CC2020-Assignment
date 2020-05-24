@@ -55,6 +55,15 @@ functions:
           cors: true
           authorizer: auth
 
+  delete_group:
+    handler: group/group.delete_group
+    events:
+      - http:
+          method: DELETE
+          path: /group
+          cors: true
+          authorizer: auth
+
   get_group:
     handler: group/group.get_group
     events:
@@ -109,6 +118,15 @@ functions:
           cors: true
           authorizer: auth
 
+  delete_post:
+    handler: group/posts.delete_post
+    events:
+      - http:
+          method: DELETE
+          path: /group/posts
+          cors: true
+          authorizer: auth
+
   get_users_posts:
     handler: group/posts.get_users_posts
     events:
@@ -145,6 +163,15 @@ functions:
           cors: true
           authorizer: auth
 
+  delete_event:
+    handler: event/event.delete_event
+    events:
+      - http:
+          method: DELETE
+          path: /event
+          cors: true
+          authorizer: auth
+
   get_event:
     handler: event/event.get_event
     events:
@@ -177,6 +204,15 @@ functions:
     events:
       - http:
           method: POST
+          path: /event/attend
+          cors: true
+          authorizer: auth
+
+  delete_attendance:
+    handler: event/attending.delete_attendance
+    events:
+      - http:
+          method: DELETE
           path: /event/attend
           cors: true
           authorizer: auth

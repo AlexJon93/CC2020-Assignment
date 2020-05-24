@@ -25,6 +25,15 @@ def add_attendance(event, context):
 
     return post(create_req, insert_req, conn)
 
+def delete_attendance(event, context):
+    """ Deletes given attendance relation from DB """
+
+    outcome, request = check_post('event_id', 'event_attendee', conn=conn, event=event)
+    if outcome is False:
+        return request
+
+    return delete('Attending', 'EventID = {} and AttendeeID = {}'.format(request['event_id'], request['event_attendee']), conn)
+
 def get_attending(event, context):
     """ Returns list of all events a user is attending """
 

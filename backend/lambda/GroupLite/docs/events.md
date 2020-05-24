@@ -19,6 +19,21 @@ Creates event in database from given details
     * Status Code: 200
     * No JSON Response
 
+***Delete Event***
+
+Deletes given event from database
+* URL: /event
+* Method: DELETE
+* Post Request:
+    ```json
+    {
+        "event_id": 1
+    }
+    ```
+* Success Response:
+    * Status Code: 200
+    * No JSON Response
+
 ***Get Event***
 
 Returns JSON Data of an event from a given event id
@@ -113,6 +128,19 @@ Creates attendance relation between given user and event
 * Success Response:
     * Status Code: 200
     * No JSON Response
+
+***Remove Attendance***
+
+Removes given attendance relation from DB
+* URL: /event/attend
+* Method: DELETE
+* Post Request:
+    ```json
+    {
+        "event_id": 1,
+        "event_attendee": 1
+    }
+    ```
 
 ***Get Attending***
 

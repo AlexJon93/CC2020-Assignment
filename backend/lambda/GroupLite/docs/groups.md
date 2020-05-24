@@ -51,6 +51,21 @@ Creates group in database from given details
     * Status Code : 200
     * No JSON returned
 
+***Delete Group***
+
+Deletes given group from database
+* URL: /group
+* Method: DELETE
+* Post Request:
+    ```json
+    {
+        "group_id": 1
+    }
+    ```
+* Success Response: 
+    * Status Code : 200
+    * No JSON returned
+
 ***Get Members***
 
 Returns JSON data of all members in group

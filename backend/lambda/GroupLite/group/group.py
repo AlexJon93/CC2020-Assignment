@@ -52,3 +52,12 @@ def get_group(event, context):
         return response
 
     return format_response(400)
+
+def delete_group(event, context):
+    '''Deletes Group from DB'''
+
+    outcome, request = check_post('group_id', conn=conn, event=event)
+    if outcome is False:
+        return request
+
+    return delete('MemberGroup', 'GroupID = {}'.format(request['group_id']), conn)
