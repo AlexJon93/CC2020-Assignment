@@ -1,0 +1,13 @@
+export const POST_REGISTRATION = "POST_REGISTRATION";
+export const ADD_TOKEN = "ADD_TOKEN";
+export const SET_USER = "SET_USER";
+export const CLEAR_USER = "CLEAR_USER";
+export const ADD_USER_GROUP = "ADD_USER_GROUP";
+export const ADD_POST = "ADD_POST";
+export const ADD_POSTER_NAME = "ADD_POSTER_NAME";
+export const SET_LOADING = "SET_LOADING";
+export const CLEAR_WALL = "CLEAR_WALL";
+export const SET_GROUP_NAME = "SET_GROUP_NAME";
+export const SET_GROUP_ID = 'SET_GROUP_ID';
+export const SET_IS_MEMBER = "SET_IS_MEMBER";
+export const ADD_GROUP_MEMBER = "ADD_GROUP_MEMBER";
