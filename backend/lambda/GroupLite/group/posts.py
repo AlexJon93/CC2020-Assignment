@@ -56,7 +56,7 @@ def get_users_posts(event, context):
 
     # confirm user_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('user_id') is not None:
-        req = 'select PostID, PostContent, PostUser, PostGroup, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostUser = {}'.format(event["queryStringParameters"]["user_id"])
+        req = 'select PostID, PostContent, PostUser, PostGroup, ImageID, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostUser = {}'.format(event["queryStringParameters"]["user_id"])
         response = get(req, conn, 'posts')
         return response
 
@@ -71,7 +71,7 @@ def get_post(event, context):
 
     # confirm user_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('post_id') is not None:
-        req = 'select PostID, PostContent, PostUser, PostGroup, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostID = {}'.format(event["queryStringParameters"]["post_id"])
+        req = 'select PostID, PostContent, PostUser, PostGroup, ImageID, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostID = {}'.format(event["queryStringParameters"]["post_id"])
         response = get(req, conn)
         return response
 
@@ -86,7 +86,7 @@ def get_group_posts(event, context):
 
     # confirm user_id is passed via query
     if event.get('queryStringParameters') is not None and event.get('queryStringParameters').get('group_id') is not None:
-        req = 'select PostID, PostContent, PostUser, PostGroup, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostGroup = {}'.format(event["queryStringParameters"]["group_id"])
+        req = 'select PostID, PostContent, PostUser, PostGroup, ImageID, date_format(CreatedAt, \'%Y-%m-%d %T.%f\') as CreatedAt from Post where PostGroup = {}'.format(event["queryStringParameters"]["group_id"])
         response = get(req, conn, 'posts')
         return response
 

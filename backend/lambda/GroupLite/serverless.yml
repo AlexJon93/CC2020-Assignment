@@ -19,11 +19,11 @@ provider:
       - subnet-cddd35ab
 
   environment:
-    RDS_HOST: $(file(credentials.yml):RDS_HOST)
-    DB_PASS: $(file(credentials.yml):DB_PASS)
-    DB_USERNAME: $(file(credentials.yml):DB_USERNAME)
-    DB_NAME: $(file(credentials.yml):DB_NAME)
-    TOKEN_SECRET: $(file(credentials.yml):TOKEN_SECRET)
+    RDS_HOST: ${file(credentials.yml):RDS_HOST}
+    DB_PASS: ${file(credentials.yml):DB_PASS}
+    DB_USERNAME: ${file(credentials.yml):DB_USERNAME}
+    DB_NAME: ${file(credentials.yml):DB_NAME}
+    TOKEN_SECRET: ${file(credentials.yml):TOKEN_SECRET}
 
 plugins:
   - serverless-offline
